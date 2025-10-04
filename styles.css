@@ -153,3 +153,30 @@ html { scroll-behavior: smooth; }
   .about-wrap { grid-template-columns: 1fr; }
   .about-media img { height: 200px; }
 }
+
+
+/* Visual posts (full-width image or video) */
+.visual-post {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 40px 0;
+}
+
+.visual-media {
+  width: 100%;
+  max-width: 1000px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+}
+
+.visual-caption {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #b0b7c3;
+  font-style: italic;
+  text-align: center;
+  max-width: 900px;
+}
