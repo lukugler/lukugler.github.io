@@ -1,35 +1,45 @@
 /* Basic reset */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
-       color: #0f172a;
-       background: #1a1a1a;
-     }
+
+/* Global dark theme */
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
+  color: #e5e7eb;           /* light text for dark bg */
+  background: #1a1a1a;      /* dark grey background */
+}
+
+/* Smooth scroll for in-page links (e.g., _about me -> #about) */
+html { scroll-behavior: smooth; }
 
 /* Hero header with video */
-.hero { position: relative;
-        width: 100%;
-        height: 454px;
-        background: #e2e8f0;
-        overflow: hidden; 
-      }
-.hero-video { position: absolute;
-              inset: 0; width: 100%;
-              height: 100%;
-              object-fit: cover;
-              filter: saturate(1.1) contrast(1.05);
-            }
-.hero-overlay { position: relative;
-               z-index: 1;
-               width: 100%;
-               height: 100%;
-               display: grid;
-               place-items: center;
-               text-align: center;
-               background: linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.25));
-               color: white;
-               text-shadow: 0 2px 14px rgba(0,0,0,.35);
-              }
+.hero {
+  position: relative;
+  width: 100%;
+  height: 454px;
+  background: #0f0f0f;      /* darker fallback behind video */
+  overflow: hidden;
+}
+.hero-video {
+  position: absolute;
+  inset: 0; width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.1) contrast(1.05);
+}
+.hero-overlay {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  /* keep a subtle gradient; safe to remove if not needed */
+  background: linear-gradient(to bottom, rgba(0,0,0,.25), rgba(0,0,0,.15));
+  color: white;
+  text-shadow: 0 2px 14px rgba(0,0,0,.35);
+}
 .hero-overlay h1 { margin: 0; font-size: clamp(28px, 5vw, 44px); letter-spacing: .4px; }
 .hero-overlay p { margin: 8px 0 0; opacity: .9; }
 
@@ -37,46 +47,84 @@ body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarel
 #content { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .posts { display: grid; gap: 18px; }
 
-/* Card */
+/* Card (article preview) */
 .card {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 0;
-  background: #1a1a1a;             /* dark gray background */
-  border: none;    
-  border-radius: 4px;
+  background: #1a1a1a;   /* same as page bg for seamless look */
+  border: none;          /* no outline */
+  border-radius: 0;      /* sharp corners */
   overflow: hidden;
-  box-shadow: none;
+  box-shadow: none;      /* no glow */
   opacity: 0;
   transform: translateY(8px);
-  transition: opacity .45s ease, transform .45s ease, box-shadow .3s ease;
+  transition: opacity .45s ease, transform .45s ease;
 }
 .card.revealed { opacity: 1; transform: translateY(0); }
 
-.media { position: relative; background: #e5f6ff; }
-.media img, .media video { display: block; width: 100%; height: 100%; object-fit: cover; }
-.badge { position: absolute; left: 10px; top: 10px; background: rgba(15,23,42,.85); color: white; padding: 4px 8px; font-size: 12px; border-radius: 999px; }
+.media { position: relative; background: #111; }
+.media img, .media video {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+}
+.badge {
+  position: absolute; left: 10px; top: 10px;
+  background: rgba(15,23,42,.85); color: white;
+  padding: 4px 8px; font-size: 12px; border-radius: 999px;
+}
 
 .content { padding: 18px 20px; display: grid; align-content: center; gap: 10px; }
-.content h3 { margin: 0; font-size: 20px; }
-.meta { color: #475569; font-size: 13px; }
-.excerpt { color: #334155; line-height: 1.5; }
+.content h3 { margin: 0; font-size: 20px; color: #eaf0f6; }
+.meta   { color: #a7b0bd; font-size: 13px; }
+.excerpt{ color: #d1d5db; line-height: 1.5; }
+
 .actions { display: flex; gap: 10px; margin-top: 6px; }
-.btn { display: inline-flex; align-items: center; gap: 6px; appearance: none; border: 1px solid #cbd5e1; background: #f1f5f9; color: #0f172a; padding: 8px 12px; border-radius: 10px; cursor: pointer; text-decoration: none; font-size: 14px; }
-.btn:hover { background: #e2e8f0; }
+
+/* Buttons (dark-theme default) */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  appearance: none;
+  border: 1px solid #2b2b2b;
+  background: #151515;
+  color: #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+}
+.btn:hover { background: #202020; }
 
 /* Responsive */
-@media (max-width: 860px) { .card { grid-template-columns: 1fr; } .media { height: 220px; } }
+@media (max-width: 860px) {
+  .card { grid-template-columns: 1fr; }
+  .media { height: 220px; }
+}
 
-.site-footer { text-align: center; padding: 18px; color: #475569; font-size: 14px; }
-
+/* Footer */
+.site-footer {
+  text-align: center; padding: 18px;
+  color: #a7b0bd; font-size: 14px;
+}
 
 /* Ensure header can position the top-right button */
 .site-header, .hero { position: relative; }
 
-/* Reuse your button look; add a subtle variant for top-right */
-.about-btn { background: #0f172a; border-color: #2b2b2b; color: #e5e7eb; }
-.about-btn:hover { background: #1f2937; }
+/* Top-right `_about me` button: small, bold, italic, text-only */
+.about-btn {
+  background: none;
+  border: none;
+  color: #e5e7eb;
+  font-size: 14px;       /* smaller */
+  font-weight: 700;      /* bold */
+  font-style: italic;    /* italics */
+  text-decoration: none;
+  padding: 4px 6px;
+}
+.about-btn:hover {
+  text-decoration: underline;
+  color: #60a5fa;        /* soft blue on hover */
+}
 
 /* Mini About section at page bottom */
 .about-mini {
@@ -95,10 +143,11 @@ body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarel
   background: #222;
 }
 .about-content h2 { margin: 0 0 6px; color: #eaf0f6; }
-.about-content p { color: #d1d5db; margin: 6px 0 14px; line-height: 1.6; }
+.about-content p  { color: #d1d5db; margin: 6px 0 14px; line-height: 1.6; }
 .about-links { display: flex; flex-wrap: wrap; gap: 10px; }
-.about-links .btn { border: 1px solid #2b2b2b; background: #151515; color: #e5e7eb; }
-.about-links .btn:hover { background: #202020; }
+
+/* About links reuse .btn (already dark-themed) */
+.about-links .btn { border-color: #2b2b2b; }
 
 @media (max-width: 860px) {
   .about-wrap { grid-template-columns: 1fr; }
