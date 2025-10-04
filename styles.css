@@ -1,7 +1,10 @@
 /* Basic reset */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif; color: #0f172a; background: #1a1a1a; }
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
+       color: #0f172a;
+       background: #1a1a1a;
+     }
 
 /* Hero header with video */
 .hero { position: relative;
