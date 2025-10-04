@@ -1,15 +1,12 @@
 [
   {
     "title": "Welcome to my blog",
-    "excerpt": "This is a simple GitHub Pages site with a header video and scrollable article cards.",
-    "media": "assets/sample-1.png",
+    "excerpt": "This is my first article page, showing how subpages work.",
+    "media": "assets/sample-1.jpg",
     "mediaType": "image",
     "badge": "Intro",
     "date": "2025-10-04",
-    "tags": [
-      "meta",
-      "setup"
-    ],
-    "href": "#"
+    "tags": ["meta", "setup"],
+    "href": "articles/example.html"
   }
 ]
