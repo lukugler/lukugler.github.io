@@ -15,7 +15,19 @@ body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarel
 .posts { display: grid; gap: 18px; }
 
 /* Card */
-.card { display: grid; grid-template-columns: 320px 1fr; gap: 0; background: white; border: 1px solid #e2e8f0; border-radius: 18px; overflow: hidden; box-shadow: 0 10px 20px rgba(2,6,23,0.05); opacity: 0; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
+.card {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 0;
+  background: #1a1a1a;             /* dark gray background */
+  border: 1.5px solid #007bff;     /* bright blue outline */
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.2); /* subtle blue glow */
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .45s ease, transform .45s ease, box-shadow .3s ease;
+}
 .card.revealed { opacity: 1; transform: translateY(0); }
 
 .media { position: relative; background: #e5f6ff; }
