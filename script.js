@@ -52,7 +52,7 @@ function renderCard(post) {
   if (post.code) {
     const codeBtn = document.createElement('a'); codeBtn.className='btn'; codeBtn.href=post.code; codeBtn.textContent='Source'; actions.appendChild(codeBtn);
   }
-  content.append(h3, meta, excerpt, actions, tagWrap);
+  content.append(h3, meta, excerpt, actions);
   card.append(media, content);
   return card;
 }
