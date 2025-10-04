@@ -52,9 +52,6 @@ function renderCard(post) {
   if (post.code) {
     const codeBtn = document.createElement('a'); codeBtn.className='btn'; codeBtn.href=post.code; codeBtn.textContent='Source'; actions.appendChild(codeBtn);
   }
-  const tagWrap = document.createElement('div'); tagWrap.style.marginTop='2px';
-  (post.tags||[]).forEach(t => { const el=document.createElement('span'); el.className='tag'; el.textContent=t; tagWrap.appendChild(document.createTextNode(' ')); tagWrap.appendChild(el); });
-
   content.append(h3, meta, excerpt, actions, tagWrap);
   card.append(media, content);
   return card;
