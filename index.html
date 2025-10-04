@@ -3,29 +3,69 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your Blog</title>
+  <meta name="description" content="Personal blog about maps, 3D and experiments">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="site-header">
     <div class="hero">
-      <!-- Replace header.mp4 with your own in /assets and keep muted+autoplay+loop for best UX -->
-      <video class="hero-video" src="assets/header.mp4" autoplay muted loop playsinline poster="assets/header-poster.jpg"></video>
-      <div class="hero-overlay">
+      <!-- Top-right About button -->
+      <div style="position:absolute; top:14px; right:16px; z-index:5;">
+        <a class="btn about-btn" href="about.html" title="About me">About</a>
       </div>
+
+      <!-- Header video (no overlay text) -->
+      <video class="hero-video"
+             src="assets/header.mp4"
+             autoplay muted loop playsinline
+             poster="assets/header-poster.jpg"
+             aria-label="Header video"></video>
+
+      <!-- Keep empty overlay if you want future effects; safe to remove if not needed -->
+      <div class="hero-overlay"></div>
     </div>
   </header>
 
   <main id="content">
-    <section class="posts" id="posts">
+    <section class="posts" id="posts" aria-label="Blog posts">
       <!-- Cards are injected by script.js from posts.json -->
       <noscript>Please enable JavaScript to load posts.</noscript>
+    </section>
+
+    <!-- ===== About Me (mini) ===== -->
+    <section id="about" class="about-mini" aria-label="About me">
+      <div class="about-wrap">
+        <div class="about-media">
+          <!-- Replace with your portrait -->
+          <img src="assets/about.jpg" alt="Portrait of me">
+        </div>
+        <div class="about-content">
+          <h2>About me</h2>
+          <p>
+            I’m <strong>Your Name</strong> — I explore maps, 3D, and visual experiments.
+            This blog captures projects, ideas, and prototypes I’m playing with.
+          </p>
+          <div class="about-links">
+            <!-- Replace hrefs with your real links -->
+            <a class="btn" href="https://www.linkedin.com/in/yourname" target="_blank" rel="noopener">LinkedIn</a>
+            <a class="btn" href="https://github.com/yourusername" target="_blank" rel="noopener">GitHub</a>
+            <a class="btn" href="https://yourcompany.com" target="_blank" rel="noopener">Company</a>
+            <a class="btn" href="about.html">More about me →</a>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>&copy; <span id="year"></span> My Blog. Built on GitHub Pages.</p>
+    <p>&copy; <span id="year"></span> Your Name. Built on GitHub Pages.</p>
   </footer>
 
   <script src="script.js"></script>
+  <script>
+    // Update footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
