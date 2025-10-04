@@ -1,6 +1,6 @@
 /* Basic reset */
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; background: #1a1a1a; }
 body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif; color: #0f172a; background: #f8fafc; }
 
 /* Hero header with video */
