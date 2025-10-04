@@ -1,0 +1,27 @@
+[
+  {
+    "title": "Welcome to my blog",
+    "excerpt": "This is a simple GitHub Pages site with a header video and scrollable article cards.",
+    "media": "assets/sample-1.png",
+    "mediaType": "image",
+    "badge": "Intro",
+    "date": "2025-10-04",
+    "tags": [
+      "meta",
+      "setup"
+    ],
+    "href": "#"
+  },
+  {
+    "title": "A tiny animation teaser",
+    "excerpt": "You can use GIFs or MP4 loops for the left teaser. MP4 is usually smaller and smoother on mobile.",
+    "media": "assets/sample-2.png",
+    "mediaType": "video",
+    "badge": "Animation",
+    "date": "2025-10-04",
+    "tags": [
+      "media"
+    ],
+    "href": "#"
+  }
+]

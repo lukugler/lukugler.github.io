@@ -1,0 +1,37 @@
+/* Basic reset */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif; color: #0f172a; background: #f8fafc; }
+
+/* Hero header with video */
+.hero { position: relative; width: 100%; height: 280px; background: #e2e8f0; overflow: hidden; }
+.hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(1.1) contrast(1.05); }
+.hero-overlay { position: relative; z-index: 1; width: 100%; height: 100%; display: grid; place-items: center; text-align: center; background: linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.25)); color: white; text-shadow: 0 2px 14px rgba(0,0,0,.35); }
+.hero-overlay h1 { margin: 0; font-size: clamp(28px, 5vw, 44px); letter-spacing: .4px; }
+.hero-overlay p { margin: 8px 0 0; opacity: .9; }
+
+/* Layout */
+#content { max-width: 1100px; margin: 0 auto; padding: 24px; }
+.posts { display: grid; gap: 18px; }
+
+/* Card */
+.card { display: grid; grid-template-columns: 320px 1fr; gap: 0; background: white; border: 1px solid #e2e8f0; border-radius: 18px; overflow: hidden; box-shadow: 0 10px 20px rgba(2,6,23,0.05); opacity: 0; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
+.card.revealed { opacity: 1; transform: translateY(0); }
+
+.media { position: relative; background: #e5f6ff; }
+.media img, .media video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.badge { position: absolute; left: 10px; top: 10px; background: rgba(15,23,42,.85); color: white; padding: 4px 8px; font-size: 12px; border-radius: 999px; }
+
+.content { padding: 18px 20px; display: grid; align-content: center; gap: 10px; }
+.content h3 { margin: 0; font-size: 20px; }
+.meta { color: #475569; font-size: 13px; }
+.excerpt { color: #334155; line-height: 1.5; }
+.actions { display: flex; gap: 10px; margin-top: 6px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; appearance: none; border: 1px solid #cbd5e1; background: #f1f5f9; color: #0f172a; padding: 8px 12px; border-radius: 10px; cursor: pointer; text-decoration: none; font-size: 14px; }
+.btn:hover { background: #e2e8f0; }
+.tag { font-size: 12px; color: #475569; background: #f1f5f9; padding: 2px 8px; border-radius: 999px; border: 1px solid #e2e8f0; }
+
+/* Responsive */
+@media (max-width: 860px) { .card { grid-template-columns: 1fr; } .media { height: 220px; } }
+
+.site-footer { text-align: center; padding: 18px; color: #475569; font-size: 14px; }
