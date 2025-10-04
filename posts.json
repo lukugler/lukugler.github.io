@@ -11,5 +11,17 @@
       "setup"
     ],
     "href": "#"
+  },
+  {
+    "title": "A tiny animation teaser",
+    "excerpt": "You can use GIFs or MP4 loops for the left teaser. MP4 is usually smaller and smoother on mobile.",
+    "media": "assets/sample-2.png",
+    "mediaType": "video",
+    "badge": "Animation",
+    "date": "2025-10-04",
+    "tags": [
+      "media"
+    ],
+    "href": "#"
   }
 ]
