@@ -1,11 +1,23 @@
 [
   {
     "title": "Welcome to my blog",
-    "excerpt": "This is my first article page, showing how subpages work.",
+    "excerpt": "This is my first article page.",
     "media": "assets/sample-1.png",
     "mediaType": "image",
     "badge": "Intro",
     "date": "2025-10-04",
     "href": "articles/example.html"
+  },
+  {
+    "type": "visual",
+    "media": "assets/est_1.jpg",
+    "mediaType": "image",
+    "caption": "Evening light over the valley."
+  },
+  {
+    "type": "visual",
+    "media": "assets/ani1.mp4",
+    "mediaType": "video",
+    "caption": "A short animation test."
   }
 ]
