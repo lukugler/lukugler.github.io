@@ -10,6 +10,7 @@ If your browser blocks embedding, open the graph in a new tab using the button b
 
   <iframe
     id="network-iframe"
+    class="responsive-iframe"
     src="/assets/network_graph_node2.html"
     title="Interactive network graph"
     loading="lazy"

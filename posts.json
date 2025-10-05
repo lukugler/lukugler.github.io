@@ -41,9 +41,9 @@
     "media2Type": "image",
     "caption": "Two visuals next to each other (each with a frame).",
     "height": 550,
-    "mediaScale": 0.95,
-    "mediaBoxW": 420,
-    "mediaBoxH": 300
+    "mediaScale": 1.0,
+    "mediaBoxW": 550,
+    "mediaBoxH": 550
   },
   {
     "title": "Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony",
