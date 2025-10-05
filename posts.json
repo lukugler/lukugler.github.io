@@ -1,26 +1,54 @@
 [
   {
-    "title": "Welcome to my blog",
-    "excerpt": "This is my first article page.",
+    "title": "Standard article",
+    "excerpt": "Normal card with media and link.",
     "media": "assets/sample-1.png",
     "mediaType": "image",
-    "badge": "Intro",
-    "date": "2025-10-04",
+    "date": "2025-10-05",
     "href": "articles/example.html",
-    "height": 840
+    "badge": "Intro",
+    "height": 420
   },
+
   {
     "type": "visual",
-    "media": "assets/est_1.png",
+    "layout": "center",
+    "media": "assets/wide-landscape.jpg",
     "mediaType": "image",
     "caption": "Evening light over the valley.",
-    "height": 840
+    "height": 420,
+    "mediaScale": 0.85  // 0.3–1: how wide/tall the media can appear inside the fixed post height
   },
+
   {
     "type": "visual",
-    "media": "assets/ani_1.mp4",
+    "layout": "left",
+    "media": "assets/loop.mp4",
     "mediaType": "video",
-    "caption": "A short animation test.",
-    "height": 840
+    "caption": "A short looping animation on the left, caption on the right.",
+    "height": 420,
+    "mediaScale": 0.55
+  },
+
+  {
+    "type": "visual",
+    "layout": "right",
+    "media": "assets/panorama.jpg",
+    "mediaType": "image",
+    "caption": "Media on the right, caption on the left.",
+    "height": 420,
+    "mediaScale": 0.6
+  },
+
+  {
+    "type": "visual",
+    "layout": "two",
+    "media": "assets/photoA.jpg",
+    "mediaType": "image",
+    "media2": "assets/photoB.jpg",
+    "media2Type": "image",
+    "caption": "Two visuals next to each other.",
+    "height": 420,
+    "mediaScale": 0.95
   }
 ]
