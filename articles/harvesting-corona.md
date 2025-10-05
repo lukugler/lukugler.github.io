@@ -1,4 +1,3 @@
-# Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony
 
 Remote sensing has played a fundamental role for land cover mapping and change detection at least since the launch of the Landsat satellite program in 1972. In 1995, the Central Intelligence Agency of the United States of America released previously classified spy imagery taken from 1960 onwards with near-global coverage from the Keyhole programme, which includes the **CORONA** satellite mission. CORONA imagery is a treasure because it contains information about land cover 10 years before the beginning of the civilian Earth observation and has a high spatial resolution < 2m. However, this imagery is only pan-chromatic and usually not georeferenced, which has so far prevented a large-scale application for land cover mapping or other geophysical and environmental applications.
 
