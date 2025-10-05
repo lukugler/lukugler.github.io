@@ -1,6 +1,7 @@
 // Loads posts from posts.json and renders either article cards or visual blocks.
 // Media frames auto-match the page background.
 // Per-post media frames via mediaBoxW/mediaBoxH. Two-column cards via layout: "media-left".
+// Mobile: stack columns + fluid media; cap media height so headline/buttons stay visible.
 (function() {
   const postsEl = document.querySelector('.posts');
 
@@ -91,7 +92,7 @@
         /* Let the card grow naturally */
         .card { min-height: auto; }
 
-        /* Make media frames fluid and let images decide their height */
+        /* Make media frames fluid */
         .card .media-frame,
         .visual-post .vp-media-frame {
           width: 100% !important;
@@ -106,7 +107,11 @@
           object-fit: contain;
         }
 
-        /* Add comfortable spacing between media and text when stacked */
+        /* Cap media height so title + buttons are visible without huge scrolling */
+        .card .media-frame { max-height: var(--mobile-max-vh, 55vh); }
+        .visual-post .vp-media-frame { max-height: var(--mobile-max-vh, 55vh); }
+
+        /* Spacing when stacked */
         .card.media-left .media { margin-bottom: 14px; }
         .visual-post.side { grid-template-columns: 1fr; }
         .visual-post.two .two-grid { grid-template-columns: 1fr; }
@@ -137,6 +142,11 @@
   function px(val, fallback) {
     if (val === undefined || val === null || val === '') return fallback;
     return (typeof val === 'number') ? `${val}px` : String(val).match(/px|%|vh|vw$/) ? String(val) : `${val}px`;
+  }
+
+  function setMobileMaxVH(el, vh) {
+    if (!el || !vh) return;
+    el.style.setProperty('--mobile-max-vh', (typeof vh === 'number' ? `${vh}vh` : vh));
   }
 
   function makeArticleCard(post) {
@@ -185,6 +195,8 @@
     const wrap = document.createElement('div');
     wrap.innerHTML = html.trim();
     const node = wrap.firstElementChild;
+    // Apply optional mobile max height override
+    setMobileMaxVH(node, post.mobileMaxVH || 55);
     postsEl.appendChild(node);
     revealOnIntersect(node);
   }
@@ -223,6 +235,8 @@
     const wrap = document.createElement('div');
     wrap.innerHTML = html.trim();
     const node = wrap.firstElementChild;
+    // Apply optional mobile max height override
+    setMobileMaxVH(node, post.mobileMaxVH || 55);
     postsEl.appendChild(node);
     revealOnIntersect(node);
   }
