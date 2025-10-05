@@ -104,6 +104,17 @@ function renderCard(post) {
     actions.appendChild(viewerBtn);
   }
 
+  // Project Report button (external)
+  if (post.projectReport) {
+    const prBtn = document.createElement('a');
+    prBtn.className = 'btn';
+    prBtn.href = post.projectReport;
+    prBtn.target = '_blank';
+    prBtn.rel = 'noopener';
+    prBtn.textContent = 'Project Report';
+    actions.appendChild(prBtn);
+  }
+
   // Read button (article page)
   if (post.href) {
     const readBtn = document.createElement('a');
