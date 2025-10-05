@@ -1,14 +1,25 @@
 [
   {
+    "title": "Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony",
+    "excerpt": "Project was about processing of land cover maps from different CORONA spy imagery and part of my Master thesis project",
+    "media": "assets/sample-1.png",
+    "mediaType": "image",
+    "date": "2025-10-05",
+    "href": "articles/harvesting-corona.html",
+    "height": 420,
+    "poster": "assets/posters/harvesting-corona-poster.pdf",
+    "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en"
+  },
+
+  {
     "type": "visual",
     "layout": "center",
     "media": "assets/sample-1.png",
     "mediaType": "image",
     "caption": "Evening light over the valley.",
     "height": 420,
-    "mediaScale": 0.85  
+    "mediaScale": 0.85
   },
-
   {
     "type": "visual",
     "layout": "left",
@@ -18,7 +29,6 @@
     "height": 420,
     "mediaScale": 0.55
   },
-
   {
     "type": "visual",
     "layout": "right",
@@ -28,7 +38,6 @@
     "height": 420,
     "mediaScale": 0.6
   },
-
   {
     "type": "visual",
     "layout": "two",
@@ -40,15 +49,14 @@
     "height": 420,
     "mediaScale": 0.95
   },
-  
   {
-  "title": "Standard article",
-  "excerpt": "Normal card with media and link.",
-  "media": "assets/sample-1.png",
-  "mediaType": "image",
-  "date": "2025-10-05",
-  "href": "articles/example.html",
-  "badge": "Intro",
-  "height": 420
+    "title": "Standard article",
+    "excerpt": "Normal card with media and link.",
+    "media": "assets/sample-1.png",
+    "mediaType": "image",
+    "date": "2025-10-05",
+    "href": "articles/example.html",
+    "badge": "Intro",
+    "height": 420
   }
 ]
