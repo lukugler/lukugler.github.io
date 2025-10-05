@@ -1,7 +1,8 @@
 // Loads posts from posts.json and renders either article cards or visual blocks.
-// Media frames auto-match the page background.
-// Per-post media frames via mediaBoxW/mediaBoxH. Two-column cards via layout: "media-left".
-// Mobile: stack columns + fluid media; cap media height so headline/buttons stay visible.
+// Guarantees on narrow screens that headline, description, and buttons are visible & usable:
+//  - Text stacks ABOVE media
+//  - Media height capped aggressively (default 45vh, overridable per post via mobileMaxVH)
+//  - Headline scales with clamp(), buttons wrap
 (function() {
   const postsEl = document.querySelector('.posts');
 
@@ -30,20 +31,20 @@
         background-color: var(--bg-color, transparent);
       }
 
-      /* ---- Card base + reveal effect hook (reuses your existing classes) ---- */
+      /* ---- Card base ---- */
       .card { position: relative; display: block; min-height: var(--post-height, auto); }
       .card .media { display: flex; align-items: center; justify-content: center; }
       .card .media-frame {
         display: grid; place-items: center;
         width: var(--media-w, 100%); height: var(--media-h, auto);
         max-width: 100%;
-        overflow: hidden; /* create the visible frame */
+        overflow: hidden;
       }
       .card .media-frame > img,
       .card .media-frame > video {
         max-width: 100%; max-height: 100%;
         width: 100%; height: 100%;
-        object-fit: contain; /* keep full image visible inside frame */
+        object-fit: contain;
         display: block;
       }
 
@@ -52,16 +53,16 @@
         display: grid;
         grid-template-columns: auto 1fr;
         gap: 16px;
-        align-items: center; /* vertically center the two columns */
+        align-items: center;
       }
       .card.media-left .content {
         display: flex;
         flex-direction: column;
-        justify-content: center; /* vertically center text within the column */
+        justify-content: center;
         gap: 8px;
       }
 
-      /* ---- Visual posts: frame-controlled media size ---- */
+      /* ---- Visual posts ---- */
       .visual-post { position: relative; }
       .visual-post .vp-media-wrap { display: flex; align-items: center; justify-content: center; }
       .visual-post .vp-media-frame {
@@ -76,45 +77,43 @@
         width: 100%; height: 100%; object-fit: contain; display: block;
       }
 
-      /* ---- Existing layout variants still honored ---- */
+      /* ---- Existing layout variants ---- */
       .visual-post.center { text-align: center; }
       .visual-post.side { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; }
       .visual-post.side.left .visual-caption { order: 2; }
       .visual-post.side.right .visual-caption { order: 1; }
       .visual-post.two .two-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-      /* ---- MOBILE FIXES: stack columns + fluid media + release fixed heights ---- */
-      @media (max-width: 800px) {
-        /* Stack the two columns */
+      /* ---- MOBILE FIRST GUARANTEES ---- */
+      @media (max-width: 900px) {
+        /* Text BEFORE media to guarantee visibility */
         .card.media-left { grid-template-columns: 1fr; align-items: flex-start; }
-        .card.media-left .content { justify-content: flex-start; }
+        .card.media-left .content { order: 0; justify-content: flex-start; }
+        .card.media-left .media { order: 1; margin-top: 12px; }
 
-        /* Let the card grow naturally */
+        /* Release fixed heights and make media fluid */
         .card { min-height: auto; }
-
-        /* Make media frames fluid */
         .card .media-frame,
-        .visual-post .vp-media-frame {
-          width: 100% !important;
-          height: auto !important;
-        }
+        .visual-post .vp-media-frame { width: 100% !important; height: auto !important; }
+
         .card .media-frame > img,
         .card .media-frame > video,
         .visual-post .vp-media-frame > img,
-        .visual-post .vp-media-frame > video {
-          width: 100% !important;
-          height: auto !important;
-          object-fit: contain;
-        }
+        .visual-post .vp-media-frame > video { width: 100% !important; height: auto !important; }
 
-        /* Cap media height so title + buttons are visible without huge scrolling */
-        .card .media-frame { max-height: var(--mobile-max-vh, 55vh); }
-        .visual-post .vp-media-frame { max-height: var(--mobile-max-vh, 55vh); }
+        /* Cap media so text remains above the fold */
+        .card .media-frame { max-height: var(--mobile-max-vh, 45vh); }
+        .visual-post .vp-media-frame { max-height: var(--mobile-max-vh, 45vh); }
 
-        /* Spacing when stacked */
-        .card.media-left .media { margin-bottom: 14px; }
-        .visual-post.side { grid-template-columns: 1fr; }
-        .visual-post.two .two-grid { grid-template-columns: 1fr; }
+        /* Responsive headline + buttons */
+        .card .content h3 { font-size: clamp(20px, 5.2vw, 32px); line-height: 1.2; }
+        .card .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+      }
+
+      /* Even narrower (very small phones / split windows) */
+      @media (max-width: 380px) {
+        .card .content h3 { font-size: clamp(18px, 6vw, 26px); }
+        .card .actions a.btn { padding: 6px 10px; font-size: 14px; }
       }
     `;
     const style = document.createElement('style');
@@ -145,7 +144,7 @@
   }
 
   function setMobileMaxVH(el, vh) {
-    if (!el || !vh) return;
+    if (!el || vh == null) return;
     el.style.setProperty('--mobile-max-vh', (typeof vh === 'number' ? `${vh}vh` : vh));
   }
 
@@ -174,11 +173,6 @@
 
     const html = `
       <article class="${classes.join(' ')}" style="${heightVar}">
-        <div class="media">
-          <div class="media-frame" style="${mediaStyles}">
-            ${badge}${mediaTag}
-          </div>
-        </div>
         <div class="content">
           <h3><a href="${aHref}">${post.title||''}</a></h3>
           <div class="meta">${post.date ? fmtDate(post.date) : ''}</div>
@@ -190,13 +184,17 @@
             ${aHref && aHref!=='#' ? `<a class="btn" href="${aHref}">Read</a>` : ''}
           </div>
         </div>
+        <div class="media">
+          <div class="media-frame" style="${mediaStyles}">
+            ${badge}${mediaTag}
+          </div>
+        </div>
       </article>`;
 
     const wrap = document.createElement('div');
     wrap.innerHTML = html.trim();
     const node = wrap.firstElementChild;
-    // Apply optional mobile max height override
-    setMobileMaxVH(node, post.mobileMaxVH || 55);
+    setMobileMaxVH(node, post.mobileMaxVH != null ? post.mobileMaxVH : 45);
     postsEl.appendChild(node);
     revealOnIntersect(node);
   }
@@ -235,8 +233,7 @@
     const wrap = document.createElement('div');
     wrap.innerHTML = html.trim();
     const node = wrap.firstElementChild;
-    // Apply optional mobile max height override
-    setMobileMaxVH(node, post.mobileMaxVH || 55);
+    setMobileMaxVH(node, post.mobileMaxVH != null ? post.mobileMaxVH : 45);
     postsEl.appendChild(node);
     revealOnIntersect(node);
   }
