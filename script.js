@@ -1,22 +1,16 @@
-// Set current year in footer
+// Set current year in footer (index.html has <span id="year">)
 document.getElementById('year').textContent = new Date().getFullYear();
 
 // Load posts from posts.json and render
 async function loadPosts() {
   try {
-    const res = await fetch('posts.json');
+    const res = await fetch('posts.json', { cache: 'no-store' });
     const posts = await res.json();
     const container = document.getElementById('posts');
 
     posts.forEach(post => {
-      let element;
-      // If post is a visual-only section (image/video with optional caption)
-      if (post.type === 'visual') {
-        element = renderVisual(post);
-      } else {
-        element = renderCard(post);
-      }
-      container.appendChild(element);
+      const el = (post.type === 'visual') ? renderVisual(post) : renderCard(post);
+      container.appendChild(el);
     });
 
     revealOnScroll();
@@ -30,17 +24,13 @@ function renderCard(post) {
   const card = document.createElement('article');
   card.className = 'card';
 
-  // Media block
+  // Media
   const media = document.createElement('div');
   media.className = 'media';
-
   if (post.mediaType === 'video') {
     const v = document.createElement('video');
     v.src = post.media;
-    v.autoplay = true;
-    v.muted = true;
-    v.loop = true;
-    v.playsInline = true;
+    v.autoplay = true; v.muted = true; v.loop = true; v.playsInline = true;
     media.appendChild(v);
   } else if (post.media) {
     const img = document.createElement('img');
@@ -48,8 +38,6 @@ function renderCard(post) {
     img.alt = post.title || '';
     media.appendChild(img);
   }
-
-  // Optional badge
   if (post.badge) {
     const b = document.createElement('span');
     b.className = 'badge';
@@ -57,11 +45,10 @@ function renderCard(post) {
     media.appendChild(b);
   }
 
-  // Content area
+  // Content
   const content = document.createElement('div');
   content.className = 'content';
 
-  // Title
   if (post.title) {
     const h3 = document.createElement('h3');
     const link = document.createElement('a');
@@ -72,7 +59,6 @@ function renderCard(post) {
     content.appendChild(h3);
   }
 
-  // Date (tags removed per your request)
   if (post.date) {
     const meta = document.createElement('div');
     meta.className = 'meta';
@@ -80,7 +66,6 @@ function renderCard(post) {
     content.appendChild(meta);
   }
 
-  // Excerpt
   if (post.excerpt) {
     const excerpt = document.createElement('p');
     excerpt.className = 'excerpt';
@@ -88,7 +73,6 @@ function renderCard(post) {
     content.appendChild(excerpt);
   }
 
-  // Action buttons
   const actions = document.createElement('div');
   actions.className = 'actions';
   if (post.href) {
@@ -105,30 +89,27 @@ function renderCard(post) {
     codeBtn.textContent = 'Source';
     actions.appendChild(codeBtn);
   }
-  if (actions.children.length > 0) content.appendChild(actions);
+  if (actions.children.length) content.appendChild(actions);
 
   card.append(media, content);
   return card;
 }
 
-/* ---------- Visual-only posts (images / videos / short captions) ---------- */
+/* ---------- Visual-only posts ---------- */
 function renderVisual(post) {
   const section = document.createElement('section');
   section.className = 'visual-post' + (post.layout === 'side' ? ' side' : '');
 
-  // Image or video
+  // Image / video
   const media = document.createElement(post.mediaType === 'video' ? 'video' : 'img');
   media.src = post.media;
   media.className = 'visual-media';
   if (post.mediaType === 'video') {
-    media.autoplay = true;
-    media.loop = true;
-    media.muted = true;
-    media.playsInline = true;
+    media.autoplay = true; media.loop = true; media.muted = true; media.playsInline = true;
   }
   section.appendChild(media);
 
-  // Optional caption
+  // Caption (optional)
   if (post.caption) {
     const caption = document.createElement('p');
     caption.className = 'visual-caption';
@@ -139,9 +120,9 @@ function renderVisual(post) {
   return section;
 }
 
-/* ---------- Reveal-on-scroll animation ---------- */
+/* ---------- Reveal on scroll ---------- */
 function revealOnScroll() {
-  const observed = document.querySelectorAll('.card, .visual-post');
+  const targets = document.querySelectorAll('.card, .visual-post');
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -150,8 +131,8 @@ function revealOnScroll() {
       }
     });
   }, { threshold: 0.15 });
-  observed.forEach(el => io.observe(el));
+  targets.forEach(t => io.observe(t));
 }
 
-// Initialize
+// Go
 loadPosts();
