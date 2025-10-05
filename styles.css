@@ -85,7 +85,7 @@ body {
 }
 
 .content{ padding: 18px 20px; display: grid; gap: 10px; align-content: center; }
-.content h3{ margin: 0; font-size: 20px; color: #eaf0f6; }
+.content h3{ margin: 0; font-size: 26px; font-weight: 700; color: #e5e7eb; }
 .meta{ color: #a7b0bd; font-size: 13px; }
 .excerpt{ color: #d1d5db; line-height: 1.5; max-height: 3.5em; overflow: hidden; text-overflow: ellipsis; }
 .actions{ display: flex; gap: 10px; margin-top: 6px; }
@@ -98,7 +98,7 @@ body {
   padding: 8px 12px; border-radius: 8px;
   cursor: pointer; text-decoration: none; font-size: 14px;
 }
-.btn:hover{ background: #202020; }
+.btn:hover{ background: #cda8e3; }
 
 /* =========================
    Visual posts (images / videos)
