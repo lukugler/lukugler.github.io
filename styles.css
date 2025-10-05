@@ -125,7 +125,6 @@ body {
 .posts {
   display: grid;
   gap: var(--gap);
-  margin-bottom: 80px;
 }
 
 /* =========================
@@ -151,7 +150,30 @@ body {
   transform: translateY(0);
 }
 
-/* Media container: center and avoid cropping by default */
+/* For media-left cards use a consistent media column width supplied by each card via --media-col.
+   This ensures different cards that declare the same mediaBoxW align exactly. */
+.card.media-left {
+  grid-template-columns: var(--media-col, 420px) 1fr;
+  gap: 16px;
+  /* align to start so media respects square height */
+  align-items: start;
+}
+
+/* Make media column a square area on desktop by default.
+   The per-card --media-col is applied by script.js so cards with the same mediaBoxW align perfectly. */
+.card.media-left .media {
+  width: var(--media-col, 420px);
+  height: var(--media-col, 420px);
+  /* square */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Fallback: keep media centered in normal cards too */
 .media {
   position: relative;
   background: #111;
@@ -160,28 +182,38 @@ body {
   justify-content: center;
 }
 
-.media img,
-.media video {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-  display: block;
-}
-
-/* Provide a lightweight frame class for consistency with script-injected styles */
+/* Media frame: use per-card --media-w / --media-h if provided, but default to square using --media-col.
+   The frame itself is flush (no extra frame gap) so media align vertically across cards that share the same size. */
 .media-frame {
   display: grid;
   place-items: center;
-  width: var(--media-w, 100%);
-  height: var(--media-h, auto);
+  width: var(--media-w, var(--media-col, 100%));
+  height: var(--media-h, var(--media-col, auto));
+  /* prefer explicit media-h but fall back to square */
   max-width: 100%;
   overflow: hidden;
-  margin-inline: auto;
+  margin: 0;
+  box-sizing: border-box;
+  border-radius: 4px;
+  /* subtle corner */
+  background: transparent;
 }
 
+/* Default: fill the square frame visually on desktop using cover so frame looks uniform */
 .media-frame>img,
 .media-frame>video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Preserve previous behavior for other card types (contain) */
+.card:not(.media-left) .media-frame>img,
+.card:not(.media-left) .media-frame>video {
   max-width: 100%;
+  max-height: 100%;
+  width: auto;
   height: auto;
   object-fit: contain;
   display: block;
@@ -279,7 +311,6 @@ body {
   display: block;
 }
 
-/* Caption shared styles */
 .visual-caption {
   color: #cbd5e1;
   font-size: 14px;
@@ -288,7 +319,6 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   margin-top: 10px;
-  /* baseline gap; layout-specific rules override below */
 }
 
 /* ----- CENTER layout (caption below) ----- */
@@ -343,9 +373,7 @@ body {
 .visual-post.two {
   display: grid;
   grid-template-rows: 1fr auto;
-  /* media area + caption row */
   padding: 12px;
-  /* 12px L/R padding = 24px total accounted for below */
   gap: 10px;
 }
 
@@ -358,20 +386,14 @@ body {
   min-width: 0;
   height: calc(var(--post-height) - var(--two-caption-block)
       /* reserved caption block height */
-      - 24px
-      /* horizontal padding (12+12) also consumes vertical due to grid gap? safeguard */
-      - var(--caption-gap-two)
-      /* spacing between media and caption */
     );
   overflow: hidden;
 }
 
-/* Each media wrapper fills the fixed media area height */
 .visual-post.two .vp-media-wrap {
   height: 100%;
 }
 
-/* Ensure media scales inside without overflowing the media row */
 .visual-post.two .visual-media {
   width: 100%;
   height: 100%;
@@ -379,7 +401,6 @@ body {
   object-fit: contain;
 }
 
-/* Caption for 'two' layout */
 .visual-post.two .visual-caption {
   padding: 2px 6px;
   font-style: italic;
@@ -452,19 +473,48 @@ body {
 }
 
 /* =========================
-   Footer
+   Embed styles for articles (network graph, maps, etc.)
+   These ensure the iframe is large enough for interaction and responsive.
    ========================= */
-.site-footer {
-  text-align: center;
-  padding: 18px;
-  color: #a7b0bd;
-  font-size: 14px;
+.embed-wrap {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
 }
 
-/* =========================
-   Responsive tweaks
-   ========================= */
+.embed-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Make the iframe large and usable on desktop while remaining responsive on mobile */
+#network-iframe {
+  width: 100%;
+  height: min(80vh, 1100px);
+  /* generous height for desktop */
+  border: none;
+  border-radius: 6px;
+  background: #0b0b0b;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  display: block;
+}
+
+/* On narrow screens keep iframe tall enough to explore while not exceeding viewport */
 @media (max-width: 860px) {
+  #network-iframe {
+    height: min(72vh, 900px);
+  }
+
+  .embed-controls {
+    flex-wrap: wrap;
+  }
+
+  .embed-controls .btn {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
   :root {
     --post-height: 320px;
     --two-caption-block: 44px;
@@ -511,7 +561,6 @@ body {
     max-height: none !important;
   }
 
-  /* Show full excerpt on medium / small widths */
   .card .excerpt {
     display: block !important;
     -webkit-line-clamp: unset !important;
@@ -530,5 +579,16 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .card .content h3 {
+    font-size: clamp(18px, 6vw, 26px);
+  }
+
+  .card .actions a.btn {
+    padding: 6px 10px;
+    font-size: 14px;
   }
 }

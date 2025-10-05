@@ -54,11 +54,24 @@
     "href": "articles/harvesting-corona.md",
     "height": 550,
     "layout": "media-left",
-    "mediaBoxW": 500,
-    "mediaBoxH": 500,
+    "mediaBoxW": 550,
+    "mediaBoxH": 550,
     "mobileMaxVH": 50,
     "poster": "assets/posters/harvesting-corona-poster.pdf",
     "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en",
     "projectReport": "https://publikationen.sachsen.de/bdb/artikel/42436"
+  },
+  {
+    "title": "Telegram Network Analysis of the Saxon right-wing party Free Saxony",
+    "excerpt": "For a Friends semester project in Political Science I collected a database of Telegram channels in the sphere of the right wing partie Freie Sachsen",
+    "media": "assets/post_2_header_tele.jpeg",
+    "mediaType": "image",
+    "date": "2025-10-05",
+    "href": "articles/network_anlysis.md",
+    "height": 550,
+    "layout": "media-left",
+    "mediaBoxW": 550,
+    "mediaBoxH": 550,
+    "mobileMaxVH": 50
   }
 ]
