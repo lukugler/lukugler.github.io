@@ -17,7 +17,7 @@
     "mediaType": "image",
     "caption": "Evening light over the valley.",
     "height": 420,
-    "mediaScale": 0.85  // 0.3–1: how wide/tall the media can appear inside the fixed post height
+    "mediaScale": 0.85  
   },
 
   {
