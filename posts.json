@@ -56,7 +56,7 @@
   "layout": "media-left",
   "mediaBoxW": 500,
   "mediaBoxH": 500,
-  "mobileMaxVH": 40,
+  "mobileMaxVH": 30,
   "poster": "assets/posters/harvesting-corona-poster.pdf",
   "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en",
   "projectReport": "https://publikationen.sachsen.de/bdb/artikel/42436"
