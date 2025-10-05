@@ -24,6 +24,9 @@ function renderCard(post) {
   const card = document.createElement('article');
   card.className = 'card';
 
+  // Allow per-post height override (e.g. "height": 480 in posts.json)
+  if (post.height) card.style.setProperty('--post-height', post.height + 'px');
+
   // Media
   const media = document.createElement('div');
   media.className = 'media';
@@ -99,6 +102,9 @@ function renderCard(post) {
 function renderVisual(post) {
   const section = document.createElement('section');
   section.className = 'visual-post' + (post.layout === 'side' ? ' side' : '');
+
+  // Allow per-post height override
+  if (post.height) section.style.setProperty('--post-height', post.height + 'px');
 
   // Image / video
   const media = document.createElement(post.mediaType === 'video' ? 'video' : 'img');
