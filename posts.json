@@ -59,18 +59,5 @@
     "mediaScale": 0.95,
     "mediaBoxW": 420,
     "mediaBoxH": 300
-  },
-  {
-    "title": "Welcome to my blog",
-    "excerpt": "A simple hello world in Markdown.",
-    "media": "assets/sample-1.png",
-    "mediaType": "image",
-    "date": "2025-10-04",
-    "href": "articles/welcome.md",
-    "badge": "Intro",
-    "height": 420,
-    "layout": "media-left",
-    "mediaBoxW": 340,
-    "mediaBoxH": 340
   }
 ]
