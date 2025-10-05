@@ -82,10 +82,32 @@
       .visual-post.side.right .visual-caption { order: 1; }
       .visual-post.two .two-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-      /* ---- Responsive: columns become rows on small screens ---- */
+      /* ---- MOBILE FIXES: stack columns + fluid media + release fixed heights ---- */
       @media (max-width: 800px) {
+        /* Stack the two columns */
         .card.media-left { grid-template-columns: 1fr; align-items: flex-start; }
         .card.media-left .content { justify-content: flex-start; }
+
+        /* Let the card grow naturally */
+        .card { min-height: auto; }
+
+        /* Make media frames fluid and let images decide their height */
+        .card .media-frame,
+        .visual-post .vp-media-frame {
+          width: 100% !important;
+          height: auto !important;
+        }
+        .card .media-frame > img,
+        .card .media-frame > video,
+        .visual-post .vp-media-frame > img,
+        .visual-post .vp-media-frame > video {
+          width: 100% !important;
+          height: auto !important;
+          object-fit: contain;
+        }
+
+        /* Add comfortable spacing between media and text when stacked */
+        .card.media-left .media { margin-bottom: 14px; }
         .visual-post.side { grid-template-columns: 1fr; }
         .visual-post.two .two-grid { grid-template-columns: 1fr; }
       }
