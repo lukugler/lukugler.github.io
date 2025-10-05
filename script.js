@@ -1,8 +1,6 @@
 // Loads posts from posts.json and renders either article cards or visual blocks.
-// Guarantees on narrow screens that headline, description, and buttons are visible & usable:
-//  - Text stacks ABOVE media
-//  - Media height capped aggressively (default 45vh, overridable per post via mobileMaxVH)
-//  - Headline scales with clamp(), buttons wrap
+// Guarantees on narrow screens that headline, description, and buttons are visible & usable,
+// and media NEVER crops (it scales down with intact aspect ratio).
 (function() {
   const postsEl = document.querySelector('.posts');
 
@@ -96,14 +94,21 @@
         .card .media-frame,
         .visual-post .vp-media-frame { width: 100% !important; height: auto !important; }
 
+        /* IMPORTANT: do NOT crop — remove clipping and cap the MEDIA element instead */
+        .card .media-frame,
+        .visual-post .vp-media-frame { overflow: visible !important; }
+
+        /* Scale media down without cropping; preserve aspect */
         .card .media-frame > img,
         .card .media-frame > video,
         .visual-post .vp-media-frame > img,
-        .visual-post .vp-media-frame > video { width: 100% !important; height: auto !important; }
-
-        /* Cap media so text remains above the fold */
-        .card .media-frame { max-height: var(--mobile-max-vh, 45vh); }
-        .visual-post .vp-media-frame { max-height: var(--mobile-max-vh, 45vh); }
+        .visual-post .vp-media-frame > video {
+          width: auto !important;
+          height: auto !important;
+          max-width: 100% !important;
+          max-height: var(--mobile-max-vh, 45vh) !important;
+          object-fit: contain !important;
+        }
 
         /* Responsive headline + buttons */
         .card .content h3 { font-size: clamp(20px, 5.2vw, 32px); line-height: 1.2; }
