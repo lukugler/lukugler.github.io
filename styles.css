@@ -18,6 +18,8 @@ body {
   --media-scale: 1;
   --gap: 10px;
   --hover-green: #20A387E6; /* unified hover color with alpha */
+  --caption-gap-center: 16px; /* space between media & caption (center layout) */
+  --caption-gap-two: 16px;    /* space for two visuals layout */
 }
 
 /* =========================
@@ -183,6 +185,7 @@ body {
 .visual-post.center .visual-caption {
   padding: 4px 12px;
   font-style: italic;
+  margin-top: var(--caption-gap-center);
 }
 
 /* ----- LEFT / RIGHT ----- */
@@ -228,7 +231,7 @@ body {
 .visual-post.two .visual-caption {
   padding: 2px 6px;
   font-style: italic;
-  margin-top: 16px;
+  margin-top: var(--caption-gap-two);
 }
 
 /* =========================
