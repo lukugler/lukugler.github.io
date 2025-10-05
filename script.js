@@ -1,15 +1,36 @@
 // Loads posts from posts.json and renders either article cards or visual blocks.
-// New: control media frame size via mediaBoxW/mediaBoxH (px) on both article cards and visual posts.
-// New: optional layout: "media-left" makes a two-column card (media column + text column).
-//     On mobile, columns collapse into rows automatically.
-//     Media is centered inside its frame using object-fit: contain.
+// Media frames auto-match the page background.
+// Per-post media frames via mediaBoxW/mediaBoxH. Two-column cards via layout: "media-left".
 (function() {
+  const postsEl = document.querySelector('.posts');
+
+  // Determine background color from the posts container (preferred) or body
+  const getBG = () => {
+    const srcEl = postsEl || document.body;
+    const bg = getComputedStyle(srcEl).backgroundColor || getComputedStyle(document.body).backgroundColor || '#1a1a1a';
+    document.documentElement.style.setProperty('--bg-color', bg);
+  };
+  getBG();
+  window.addEventListener('resize', getBG);
+
   // Inject minimal CSS needed for frames + responsive columns
   (function injectStyles(){
     if (document.getElementById('md-enhance-styles')) return;
     const css = `
+      /* ---- Background match on ALL layers (container + frame + media) ---- */
+      .card .media,
+      .card .media-frame,
+      .card .media-frame > img,
+      .card .media-frame > video,
+      .visual-post .vp-media-wrap,
+      .visual-post .vp-media-frame,
+      .visual-post .vp-media-frame > img,
+      .visual-post .vp-media-frame > video {
+        background-color: var(--bg-color, transparent);
+      }
+
       /* ---- Card base + reveal effect hook (reuses your existing classes) ---- */
-      .card { position: relative; display: block; }
+      .card { position: relative; display: block; min-height: var(--post-height, auto); }
       .card .media { display: flex; align-items: center; justify-content: center; }
       .card .media-frame {
         display: grid; place-items: center;
@@ -34,9 +55,6 @@
       }
       .card.media-left .media { padding: 0; }
       .card.media-left .content { display: flex; flex-direction: column; gap: 8px; }
-
-      /* ---- Respect overall card height if provided (existing variable --post-height) ---- */
-      .card { min-height: var(--post-height, auto); }
 
       /* ---- Visual posts: frame-controlled media size ---- */
       .visual-post { position: relative; }
@@ -73,9 +91,6 @@
     document.head.appendChild(style);
   })();
 
-  const postsEl = document.querySelector('.posts');
-  if (!postsEl) return;
-
   function revealOnIntersect(el) {
     const io = new IntersectionObserver(entries => {
       entries.forEach(e => e.isIntersecting && e.target.classList.add('revealed'));
@@ -98,6 +113,7 @@
   }
 
   function makeArticleCard(post) {
+    const postsEl = document.querySelector('.posts');
     const aHref = (post.href && post.href.endsWith('.md'))
       ? `articles/article.html?src=${encodeURIComponent(post.href)}&title=${encodeURIComponent(post.title||'')}&date=${encodeURIComponent(post.date||'')}`
       : (post.href || '#');
@@ -147,6 +163,7 @@
   }
 
   function makeVisual(post) {
+    const postsEl = document.querySelector('.posts');
     const layout = post.layout || 'center';
     const scale = post.mediaScale || 1;
     const height = post.height || 420;
@@ -197,6 +214,7 @@
       });
     } catch (err) {
       console.error(err);
+      const postsEl = document.querySelector('.posts');
       if (postsEl) postsEl.innerHTML = '<p style="color:#fca5a5;">Could not load posts.json</p>';
     }
   })();
