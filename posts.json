@@ -1,17 +1,16 @@
 [
   {
     "title": "Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony",
-    "excerpt": "Project was about processing of land cover maps from different CORONA spy imagery and part of my Master thesis project",
+    "excerpt": "Processing land cover maps from CORONA spy imagery — part of my Master’s thesis project.",
     "media": "assets/post_1_header_corona.jpg",
     "mediaType": "image",
     "date": "2025-10-05",
-    "href": "articles/harvesting-corona.html",
+    "href": "articles/harvesting-corona.md",
     "height": 550,
     "poster": "assets/posters/harvesting-corona-poster.pdf",
     "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en",
     "projectReport": "https://publikationen.sachsen.de/bdb/artikel/42436"
   },
-
   {
     "type": "visual",
     "layout": "center",
@@ -51,12 +50,12 @@
     "mediaScale": 0.95
   },
   {
-    "title": "Standard article",
-    "excerpt": "Normal card with media and link.",
+    "title": "Welcome to my blog",
+    "excerpt": "A simple hello world in Markdown.",
     "media": "assets/sample-1.png",
     "mediaType": "image",
-    "date": "2025-10-05",
-    "href": "articles/example.html",
+    "date": "2025-10-04",
+    "href": "articles/welcome.md",
     "badge": "Intro",
     "height": 420
   }
