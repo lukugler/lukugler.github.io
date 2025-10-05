@@ -18,8 +18,14 @@ body {
   --media-scale: 1;
   --gap: 10px;
   --hover-green: #20A387E6; /* unified hover color with alpha */
-  --caption-gap-center: 16px; /* space between media & caption (center layout) */
-  --caption-gap-two: 16px;    /* space for two visuals layout */
+
+  /* Caption spacing controls */
+  --caption-gap-center: 16px; /* single visual (caption below) */
+  --caption-gap-two: 16px;    /* two visuals (caption below) */
+
+  /* Reserve space for two-layout caption block (line + padding) */
+  --two-caption-block: 40px;  /* change if your caption gets taller */
+  /* Horizontal padding inside two-layout (12px left + 12px right) = 24px used below */
 }
 
 /* =========================
@@ -122,10 +128,7 @@ body {
   color: #e5e7eb;
   text-decoration: underline;
 }
-
-.content h3 a:hover {
-  color: var(--hover-green);
-}
+.content h3 a:hover { color: var(--hover-green); }
 
 .meta { color: #a7b0bd; font-size: 13px; }
 .excerpt {
@@ -172,10 +175,10 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 10px;
+  margin-top: 10px; /* baseline gap; layout-specific rules override below */
 }
 
-/* ----- CENTER layout ----- */
+/* ----- CENTER layout (caption below) ----- */
 .visual-post.center {
   display: grid;
   grid-template-rows: 1fr auto;
@@ -188,7 +191,7 @@ body {
   margin-top: var(--caption-gap-center);
 }
 
-/* ----- LEFT / RIGHT ----- */
+/* ----- LEFT / RIGHT (side-by-side) ----- */
 .visual-post.side {
   display: grid;
   grid-template-columns: minmax(0, calc(var(--container-max) * var(--media-scale))) 1fr;
@@ -211,23 +214,43 @@ body {
 .visual-post.right { direction: rtl; }
 .visual-post.right > * { direction: ltr; }
 
-/* ----- TWO (two medias) ----- */
+/* ----- TWO (two medias with caption below) ----- */
 .visual-post.two {
   display: grid;
-  grid-template-rows: 1fr auto;
-  padding: 12px;
+  grid-template-rows: 1fr auto; /* media area + caption row */
+  padding: 12px;                /* 12px L/R padding = 24px total accounted for below */
   gap: 10px;
 }
+
+/* Fix height for the media area so it never overlaps the caption */
 .visual-post.two .two-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   min-height: 0; min-width: 0;
+  height: calc(
+    var(--post-height)
+    - var(--two-caption-block)   /* reserved caption block height */
+    - 24px                       /* horizontal padding (12+12) also consumes vertical due to grid gap? safeguard */
+    - var(--caption-gap-two)     /* spacing between media and caption */
+  );
+  overflow: hidden;
 }
+
+/* Each media wrapper fills the fixed media area height */
 .visual-post.two .vp-media-wrap {
-  height: calc(var(--post-height) - 48px);
+  height: 100%;
 }
-.visual-post.two .visual-media { max-height: 100%; }
+
+/* Ensure media scales inside without overflowing the media row */
+.visual-post.two .visual-media {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Caption for 'two' layout */
 .visual-post.two .visual-caption {
   padding: 2px 6px;
   font-style: italic;
@@ -261,6 +284,7 @@ body {
   max-width: 200px;
   margin: 0 auto;
 }
+.about-content h2,
 .about-content h3 {
   margin: 0 0 6px;
   color: #eaf0f6;
@@ -304,7 +328,7 @@ body {
    Responsive tweaks
    ========================= */
 @media (max-width: 860px) {
-  :root { --post-height: 320px; }
+  :root { --post-height: 320px; --two-caption-block: 44px; }
   .card { grid-template-columns: 1fr; }
   .visual-post.side { grid-template-columns: 1fr; }
   .about-wrap { grid-template-columns: 1fr; }
