@@ -35,15 +35,15 @@
   {
     "type": "visual",
     "layout": "two",
-    "media": "assets/sample-1.png",
+    "media": "assets/post_3_sn_1965.jpeg",
     "mediaType": "image",
-    "media2": "assets/sample-1.png",
+    "media2": "assets/post_3_sn_1975.jpeg",
     "media2Type": "image",
-    "caption": "Two visuals next to each other (each with a frame).",
+    "caption": "CORONA imagery over Leisnig (Saxony) 1965 & 1975.",
     "height": 550,
-    "mediaScale": 1.0,
-    "mediaBoxW": 550,
-    "mediaBoxH": 550
+    "mediaScale": 0.8,
+    "mediaBoxW": 500,
+    "mediaBoxH": 500
   },
   {
     "title": "Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony",
@@ -60,6 +60,17 @@
     "poster": "assets/posters/harvesting-corona-poster.pdf",
     "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en",
     "projectReport": "https://publikationen.sachsen.de/bdb/artikel/42436"
+  },
+  {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/post_3_dd_1975.png",
+    "mediaType": "image",
+    "caption": "CORONA Imagery over Dresden 1975.",
+    "height": 275,
+    "mediaScale": 1,
+    "mediaBoxW": 1100,
+    "mediaBoxH": 275
   },
   {
     "title": "Telegram Network Analysis of the Saxon right-wing party Free Saxony",

@@ -1,4 +1,5 @@
-/* Full stylesheet (plug-and-play). Adjust colors / sizes as you prefer. */
+/* ...existing code... */
+/* Full corrected stylesheet — no // comments, balanced braces, includes fixes for 'two' captions and iframe touch handling. */
 
 /* Reset + basics */
 * {
@@ -26,11 +27,11 @@ body {
   --container-max: 1100px;
   --post-height: 420px;
   --media-scale: 1;
-  --gap: 10px;
+  --gap: 3px;
   --hover-green: #20A387E6;
-  --caption-gap-center: 10px;
-  --caption-gap-two: 10px;
-  --two-caption-block: 40px;
+  --caption-gap-center: 3px;
+  --caption-gap-two: 3px;
+  --two-caption-block: 3px;
 }
 
 /* Header / hero */
@@ -129,7 +130,7 @@ body {
   transform: translateY(0);
 }
 
-/* media-left cards align using per-card --media-col so identical widths stack */
+/* media-left cards align using per-card --media-col */
 .card.media-left {
   grid-template-columns: var(--media-col, 420px) 1fr;
   gap: 16px;
@@ -139,7 +140,6 @@ body {
 .card.media-left .media {
   width: var(--media-col, 420px);
   height: var(--media-col, 420px);
-  /* square on desktop */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -148,7 +148,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Fallback */
+/* Fallback media container */
 .media {
   position: relative;
   background: #111;
@@ -178,6 +178,7 @@ body {
   display: block;
 }
 
+/* For non-media-left cards use contain to avoid cropping */
 .card:not(.media-left) .media-frame>img,
 .card:not(.media-left) .media-frame>video {
   max-width: 100%;
@@ -250,7 +251,7 @@ body {
   opacity: 0;
   transform: translateY(8px);
   transition: opacity .45s ease, transform .45s ease;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .visual-post.revealed {
@@ -283,10 +284,10 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 10px;
+  margin-top: var(--caption-gap-center);
 }
 
-/* layouts */
+/* CENTER layout */
 .visual-post.center {
   display: grid;
   grid-template-rows: 1fr auto;
@@ -301,8 +302,11 @@ body {
   padding: 4px 12px;
   font-style: italic;
   margin-top: var(--caption-gap-center);
+  white-space: normal;
+  overflow: visible;
 }
 
+/* SIDE layouts */
 .visual-post.side {
   display: grid;
   grid-template-columns: minmax(0, calc(var(--container-max) * var(--media-scale))) 1fr;
@@ -323,6 +327,7 @@ body {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
 }
 
 .visual-post.right {
@@ -333,11 +338,14 @@ body {
   direction: ltr;
 }
 
+/* TWO layout - ensure caption visible */
 .visual-post.two {
   display: grid;
   grid-template-rows: 1fr auto;
   padding: 12px;
   gap: 10px;
+  height: var(--post-height);
+  overflow: visible;
 }
 
 .visual-post.two .two-grid {
@@ -346,25 +354,35 @@ body {
   gap: 12px;
   min-height: 0;
   min-width: 0;
-  height: calc(var(--post-height) - var(--two-caption-block));
+  height: auto;
+  max-height: calc(var(--post-height) - var(--two-caption-block));
   overflow: hidden;
 }
 
 .visual-post.two .vp-media-wrap {
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .visual-post.two .visual-media {
   width: 100%;
   height: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  display: block;
 }
 
 .visual-post.two .visual-caption {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  display: block;
   padding: 2px 6px;
   font-style: italic;
   margin-top: var(--caption-gap-two);
+  text-align: center;
 }
 
 /* About */
@@ -431,7 +449,6 @@ body {
 }
 
 /* Embed styles (network graph / maps) */
-/* Make iframe adapt to browser size; prevent page zoom when gestures happen over the iframe so the embedded page receives touch/pointer gestures. */
 .embed-wrap {
   display: grid;
   gap: 12px;
@@ -444,7 +461,7 @@ body {
   align-items: center;
 }
 
-/* responsive iframe: use aspect-ratio where supported; clamp height to viewport on phones/desktop */
+/* responsive iframe: adapt to browser size and forward touch to iframe */
 .responsive-iframe,
 #network-iframe {
   width: 100%;
@@ -453,20 +470,15 @@ body {
   background: #0b0b0b;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
   display: block;
-
-  /* Allow the embedded document to handle touch gestures: prevent the browser default pinch-zoom/scroll while touches start over iframe.
-     This helps the embedded graph receive pointer/touch events (the embedded page should also enable pointer handling). */
-  touch-action: none;
-  -ms-touch-action: none;
-
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16/9;
   height: clamp(40vh, 60vh, 85vh);
   max-height: 90vh;
   min-height: 320px;
+  touch-action: none;
+  -ms-touch-action: none;
 }
 
-/* fallback for browsers without aspect-ratio */
-@supports not (aspect-ratio: 16 / 9) {
+@supports not (aspect-ratio: 16/9) {
 
   .responsive-iframe,
   #network-iframe {
@@ -558,6 +570,7 @@ body {
   }
 }
 
+/* small screens */
 @media (max-width: 380px) {
   .card .content h3 {
     font-size: clamp(18px, 6vw, 26px);
@@ -568,3 +581,14 @@ body {
     font-size: 14px;
   }
 }
+
+/* Add vendor-prefixed and standard line-clamp for lint guidance where used */
+.visual-post.side .visual-caption {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ...existing code... */
