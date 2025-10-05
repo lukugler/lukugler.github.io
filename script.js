@@ -1,14 +1,12 @@
-// --------------------------------------
-// Footer year
-// --------------------------------------
-document.getElementById('year').textContent = new Date().getFullYear();
+// Set current year in footer
+const yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-// --------------------------------------
-// Load and render posts
-// --------------------------------------
+// Load posts from posts.json and render
 async function loadPosts() {
   try {
-    const res = await fetch('posts.json', { cache: 'no-store' });
+    // cache-bust to ensure you always see fresh changes
+    const res = await fetch('posts.json?' + Date.now());
     const posts = await res.json();
     const container = document.getElementById('posts');
 
@@ -23,22 +21,17 @@ async function loadPosts() {
   }
 }
 
-// --------------------------------------
-// Standard ARTICLE card (title/excerpt/link)
-// Fixed-height via CSS var --post-height
-// --------------------------------------
+/* ---------- Standard article cards ---------- */
 function renderCard(post) {
   const card = document.createElement('article');
   card.className = 'card';
 
-  // Per-post overrides (optional)
-  if (post.height)      card.style.setProperty('--post-height', post.height + 'px');  // numeric (e.g. 420)
-  if (post.mediaScale)  card.style.setProperty('--media-scale', post.mediaScale);      // not used by card, but safe
+  // Allow per-post height override (e.g. "height": 480 in posts.json)
+  if (post.height) card.style.setProperty('--post-height', post.height + 'px');
 
   // Media
   const media = document.createElement('div');
   media.className = 'media';
-
   if (post.mediaType === 'video') {
     const v = document.createElement('video');
     v.src = post.media;
@@ -50,7 +43,6 @@ function renderCard(post) {
     img.alt = post.title || '';
     media.appendChild(img);
   }
-
   if (post.badge) {
     const b = document.createElement('span');
     b.className = 'badge';
@@ -86,9 +78,33 @@ function renderCard(post) {
     content.appendChild(excerpt);
   }
 
-  // Actions
+  // Actions (buttons)
   const actions = document.createElement('div');
   actions.className = 'actions';
+
+  // Poster button (opens PDF in new tab)
+  if (post.poster) {
+    const posterBtn = document.createElement('a');
+    posterBtn.className = 'btn';
+    posterBtn.href = post.poster;
+    posterBtn.target = '_blank';
+    posterBtn.rel = 'noopener';
+    posterBtn.textContent = 'Poster';
+    actions.appendChild(posterBtn);
+  }
+
+  // Viewer button (external web viewer)
+  if (post.viewer) {
+    const viewerBtn = document.createElement('a');
+    viewerBtn.className = 'btn';
+    viewerBtn.href = post.viewer;
+    viewerBtn.target = '_blank';
+    viewerBtn.rel = 'noopener';
+    viewerBtn.textContent = 'Viewer';
+    actions.appendChild(viewerBtn);
+  }
+
+  // Read button (article page)
   if (post.href) {
     const readBtn = document.createElement('a');
     readBtn.className = 'btn';
@@ -96,47 +112,26 @@ function renderCard(post) {
     readBtn.textContent = 'Read';
     actions.appendChild(readBtn);
   }
-  if (post.code) {
-    const codeBtn = document.createElement('a');
-    codeBtn.className = 'btn';
-    codeBtn.href = post.code;
-    codeBtn.textContent = 'Source';
-    actions.appendChild(codeBtn);
-  }
+
   if (actions.children.length) content.appendChild(actions);
 
   card.append(media, content);
   return card;
 }
 
-// --------------------------------------
-// VISUAL post (image/video)
-// Supports layouts:
-//   "center" (default), "left", "right", "two"
-// Per-post control:
-//   height: Number (px)  -> fixed block height
-//   mediaScale: 0.3–1    -> relative width/area of media
-//   caption: String      -> single-line text
-//   media2: String       -> second media (when layout="two")
-//   mediaType: "image"|"video"
-//   media2Type: "image"|"video" (optional; defaults to mediaType)
-// --------------------------------------
+/* ---------- Visual-only posts ---------- */
 function renderVisual(post) {
   const layout = (post.layout || 'center').toLowerCase();
-
-  // Root element
   const root = document.createElement('section');
-  root.className = 'visual-post' + (layout === 'two' ? ' two' : (layout === 'left' || layout === 'right') ? ' side ' + layout : ' center');
+  root.className = 'visual-post' + (['left','right'].includes(layout) ? ' side ' + layout : (layout === 'two' ? ' two' : ' center'));
 
-  // Per-post overrides
-  if (post.height)     root.style.setProperty('--post-height', post.height + 'px');
-  if (post.mediaScale) root.style.setProperty('--media-scale', post.mediaScale); // e.g. 0.6 makes media narrower
+  if (post.height) root.style.setProperty('--post-height', post.height + 'px');
+  if (post.mediaScale) root.style.setProperty('--media-scale', post.mediaScale);
 
-  // Helper: create a media node (img/video) inside a wrap
   const makeMediaWrap = (src, type) => {
     const wrap = document.createElement('div');
     wrap.className = 'vp-media-wrap';
-    const node = document.createElement((type === 'video') ? 'video' : 'img');
+    const node = document.createElement(type === 'video' ? 'video' : 'img');
     node.src = src;
     node.className = 'visual-media';
     if (type === 'video') { node.autoplay = true; node.loop = true; node.muted = true; node.playsInline = true; }
@@ -145,47 +140,27 @@ function renderVisual(post) {
   };
 
   if (layout === 'two') {
-    // Two media side-by-side
     const grid = document.createElement('div');
     grid.className = 'two-grid';
-
-    const media1 = makeMediaWrap(post.media, post.mediaType || 'image');
-    grid.appendChild(media1);
-
-    const secondSrc  = post.media2 || post.mediaAlt || null;   // accept either "media2" or "mediaAlt"
-    const secondType = post.media2Type || post.mediaType || 'image';
-    if (secondSrc) {
-      const media2 = makeMediaWrap(secondSrc, secondType);
-      grid.appendChild(media2);
-    } else {
-      // if no second media provided, duplicate the first to keep the layout balanced
-      grid.appendChild(makeMediaWrap(post.media, post.mediaType || 'image'));
-    }
-
+    grid.appendChild(makeMediaWrap(post.media, post.mediaType || 'image'));
+    const secondSrc = post.media2 || post.mediaAlt || post.media;
+    grid.appendChild(makeMediaWrap(secondSrc, post.media2Type || post.mediaType || 'image'));
     root.appendChild(grid);
-
     if (post.caption) {
       const cap = document.createElement('p');
       cap.className = 'visual-caption';
       cap.textContent = post.caption;
       root.appendChild(cap);
     }
-
   } else if (layout === 'left' || layout === 'right') {
-    // Side-by-side: media on left OR right, caption on opposite side
     const mediaWrap = makeMediaWrap(post.media, post.mediaType || 'image');
     const cap = document.createElement('p');
     cap.className = 'visual-caption';
     cap.textContent = post.caption || '';
-
-    // Order is handled by CSS (right layout flips columns using direction)
     root.append(mediaWrap, cap);
-
   } else {
-    // CENTER: media centered with caption below
     const mediaWrap = makeMediaWrap(post.media, post.mediaType || 'image');
     root.appendChild(mediaWrap);
-
     if (post.caption) {
       const cap = document.createElement('p');
       cap.className = 'visual-caption';
@@ -197,9 +172,7 @@ function renderVisual(post) {
   return root;
 }
 
-// --------------------------------------
-// Reveal on scroll
-// --------------------------------------
+/* ---------- Reveal on scroll ---------- */
 function revealOnScroll() {
   const targets = document.querySelectorAll('.card, .visual-post');
   const io = new IntersectionObserver(entries => {
@@ -213,5 +186,5 @@ function revealOnScroll() {
   targets.forEach(t => io.observe(t));
 }
 
-// Init
+// Go
 loadPosts();
