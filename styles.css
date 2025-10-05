@@ -142,3 +142,8 @@ body {
   :root { --post-height: 320px; }
   .card { grid-template-columns: 1fr; }
 }
+
+/* Add room before About section */
+.posts {
+  margin-bottom: 80px; /* distance between last post and About */
+}
