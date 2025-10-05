@@ -227,7 +227,7 @@ body {
   margin: 0 auto;         
 }
 
-.about-content h2{ margin: 0 0 6px; color: #eaf0f6; font-style: italic; font-weight: 500; font-size: 22px;}
+.about-content h2{ margin: 0 0 6px; color: #eaf0f6; font-style: italic; font-weight: 700; font-size: 26px;}
 .about-content a {
   color: #d1d5db;        /* same as text */
   font-style: italic;    /* make it cursive */
