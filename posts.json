@@ -6,9 +6,9 @@
     "mediaType": "image",
     "caption": "Evening light over the valley.",
     "height": 420,
-    "mediaScale": 0.85,
+    "mediaScale": 0.95,
     "mediaBoxW": 420,
-    "mediaBoxH": 300
+    "mediaBoxH": 420
   },
   {
     "type": "visual",
@@ -46,19 +46,19 @@
     "mediaBoxH": 300
   },
   {
-  "title": "Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony",
-  "excerpt": "Processing land cover maps from CORONA spy imagery — part of my Master’s thesis project.",
-  "media": "assets/post_1_header_corona.jpg",
-  "mediaType": "image",
-  "date": "2025-10-05",
-  "href": "articles/harvesting-corona.md",
-  "height": 550,
-  "layout": "media-left",
-  "mediaBoxW": 500,
-  "mediaBoxH": 500,
-  "mobileMaxVH": 30,
-  "poster": "assets/posters/harvesting-corona-poster.pdf",
-  "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en",
-  "projectReport": "https://publikationen.sachsen.de/bdb/artikel/42436"
-}
+    "title": "Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony",
+    "excerpt": "Processing land cover maps from CORONA spy imagery — part of my Master’s thesis project.",
+    "media": "assets/post_1_header_corona.jpg",
+    "mediaType": "image",
+    "date": "2025-10-05",
+    "href": "articles/harvesting-corona.md",
+    "height": 550,
+    "layout": "media-left",
+    "mediaBoxW": 500,
+    "mediaBoxH": 500,
+    "mobileMaxVH": 50,
+    "poster": "assets/posters/harvesting-corona-poster.pdf",
+    "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en",
+    "projectReport": "https://publikationen.sachsen.de/bdb/artikel/42436"
+  }
 ]

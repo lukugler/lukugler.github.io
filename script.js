@@ -1,7 +1,7 @@
+// ...existing code...
 // Loads posts from posts.json and renders either article cards or visual blocks.
-// Guarantees on narrow screens that headline, description, and buttons are visible & usable,
-// and media NEVER crops (it scales down with intact aspect ratio).
-(function() {
+// Mobile behavior: text-first, media scales down without cropping, no fixed vh cap, description never truncated.
+(function () {
   const postsEl = document.querySelector('.posts');
 
   // Determine background color from the posts container (preferred) or body
@@ -14,7 +14,7 @@
   window.addEventListener('resize', getBG);
 
   // Inject minimal CSS needed for frames + responsive columns
-  (function injectStyles(){
+  (function injectStyles() {
     if (document.getElementById('md-enhance-styles')) return;
     const css = `
       /* ---- Background match on ALL layers (container + frame + media) ---- */
@@ -41,7 +41,7 @@
       .card .media-frame > img,
       .card .media-frame > video {
         max-width: 100%; max-height: 100%;
-        width: 100%; height: 100%;
+        width: 100%; height: auto;
         object-fit: contain;
         display: block;
       }
@@ -72,7 +72,7 @@
       }
       .visual-post .vp-media-frame > img,
       .visual-post .vp-media-frame > video {
-        width: 100%; height: 100%; object-fit: contain; display: block;
+        width: 100%; height: auto; object-fit: contain; display: block;
       }
 
       /* ---- Existing layout variants ---- */
@@ -82,32 +82,38 @@
       .visual-post.side.right .visual-caption { order: 1; }
       .visual-post.two .two-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-      /* ---- MOBILE FIRST GUARANTEES ---- */
+      /* ---- MOBILE: text-first, NO cropping, NO fixed caps, NO description truncation ---- */
       @media (max-width: 900px) {
-        /* Text BEFORE media to guarantee visibility */
+        /* Text before media */
         .card.media-left { grid-template-columns: 1fr; align-items: flex-start; }
         .card.media-left .content { order: 0; justify-content: flex-start; }
         .card.media-left .media { order: 1; margin-top: 12px; }
 
-        /* Release fixed heights and make media fluid */
+        /* Let the card grow naturally */
         .card { min-height: auto; }
-        .card .media-frame,
-        .visual-post .vp-media-frame { width: 100% !important; height: auto !important; }
 
-        /* IMPORTANT: do NOT crop — remove clipping and cap the MEDIA element instead */
+        /* Media is fluid, no cropping */
         .card .media-frame,
-        .visual-post .vp-media-frame { overflow: visible !important; }
-
-        /* Scale media down without cropping; preserve aspect */
+        .visual-post .vp-media-frame { width: 100% !important; height: auto !important; overflow: visible !important; }
         .card .media-frame > img,
         .card .media-frame > video,
         .visual-post .vp-media-frame > img,
         .visual-post .vp-media-frame > video {
-          width: auto !important;
+          width: 100% !important;
           height: auto !important;
           max-width: 100% !important;
-          max-height: var(--mobile-max-vh, 45vh) !important;
+          max-height: none !important;  /* remove vh cap */
           object-fit: contain !important;
+        }
+
+        /* Absolutely no truncation on the description */
+        .card .excerpt {
+          display: block !important;
+          -webkit-line-clamp: unset !important;
+          -webkit-box-orient: unset !important;
+          overflow: visible !important;
+          max-height: none !important;
+          white-space: normal !important;
         }
 
         /* Responsive headline + buttons */
@@ -115,7 +121,36 @@
         .card .actions { display: flex; flex-wrap: wrap; gap: 8px; }
       }
 
-      /* Even narrower (very small phones / split windows) */
+      /* Also apply non-cropping behavior earlier for narrow desktop windows */
+      @media (max-width: 1100px) {
+        .card { min-height: auto; }
+        .card .media-frame,
+        .visual-post .vp-media-frame {
+          width: 100% !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        .card .media-frame > img,
+        .card .media-frame > video,
+        .visual-post .vp-media-frame > img,
+        .visual-post .vp-media-frame > video {
+          width: 100% !important;
+          height: auto !important;
+          max-width: 100% !important;
+          max-height: none !important;
+          object-fit: contain !important;
+        }
+
+        .card .excerpt {
+          display: block !important;
+          -webkit-line-clamp: unset !important;
+          -webkit-box-orient: unset !important;
+          overflow: visible !important;
+          max-height: none !important;
+          white-space: normal !important;
+        }
+      }
+
       @media (max-width: 380px) {
         .card .content h3 { font-size: clamp(18px, 6vw, 26px); }
         .card .actions a.btn { padding: 6px 10px; font-size: 14px; }
@@ -137,8 +172,8 @@
   function fmtDate(iso) {
     try {
       const d = new Date(iso);
-      return d.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' });
-    } catch(e) {
+      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch (e) {
       return iso;
     }
   }
@@ -148,19 +183,14 @@
     return (typeof val === 'number') ? `${val}px` : String(val).match(/px|%|vh|vw$/) ? String(val) : `${val}px`;
   }
 
-  function setMobileMaxVH(el, vh) {
-    if (!el || vh == null) return;
-    el.style.setProperty('--mobile-max-vh', (typeof vh === 'number' ? `${vh}vh` : vh));
-  }
-
   function makeArticleCard(post) {
     const postsEl = document.querySelector('.posts');
     const aHref = (post.href && post.href.endsWith('.md'))
-      ? `articles/article.html?src=${encodeURIComponent(post.href)}&title=${encodeURIComponent(post.title||'')}&date=${encodeURIComponent(post.date||'')}`
+      ? `articles/article.html?src=${encodeURIComponent(post.href)}&title=${encodeURIComponent(post.title || '')}&date=${encodeURIComponent(post.date || '')}`
       : (post.href || '#');
 
     const mediaTag = post.mediaType === 'video'
-      ? `<video src="${post.media}" ${post.autoplay ? 'autoplay muted loop playsinline' : ''} poster="${post.poster||''}"></video>`
+      ? `<video src="${post.media}" ${post.autoplay ? 'autoplay muted loop playsinline' : ''} poster="${post.poster || ''}"></video>`
       : `<img src="${post.media}" alt="">`;
 
     const badge = post.badge ? `<div class="badge">${post.badge}</div>` : '';
@@ -179,14 +209,14 @@
     const html = `
       <article class="${classes.join(' ')}" style="${heightVar}">
         <div class="content">
-          <h3><a href="${aHref}">${post.title||''}</a></h3>
+          <h3><a href="${aHref}">${post.title || ''}</a></h3>
           <div class="meta">${post.date ? fmtDate(post.date) : ''}</div>
-          <div class="excerpt">${post.excerpt||''}</div>
+          <div class="excerpt">${post.excerpt || ''}</div>
           <div class="actions">
             ${post.viewer ? `<a class="btn" href="${post.viewer}" target="_blank" rel="noopener">Viewer</a>` : ''}
             ${post.projectReport ? `<a class="btn" href="${post.projectReport}" target="_blank" rel="noopener">Project Report</a>` : ''}
             ${post.poster ? `<a class="btn" href="${post.poster}" target="_blank" rel="noopener">Poster</a>` : ''}
-            ${aHref && aHref!=='#' ? `<a class="btn" href="${aHref}">Read</a>` : ''}
+            ${aHref && aHref !== '#' ? `<a class="btn" href="${aHref}">Read</a>` : ''}
           </div>
         </div>
         <div class="media">
@@ -199,7 +229,6 @@
     const wrap = document.createElement('div');
     wrap.innerHTML = html.trim();
     const node = wrap.firstElementChild;
-    setMobileMaxVH(node, post.mobileMaxVH != null ? post.mobileMaxVH : 45);
     postsEl.appendChild(node);
     revealOnIntersect(node);
   }
@@ -210,9 +239,9 @@
     const scale = post.mediaScale || 1;
     const height = post.height || 420;
 
-    const shared = `class="visual-post ${layout==='two' ? 'two' : (layout==='left'||layout==='right' ? 'side '+layout : 'center')}" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
+    const shared = `class="visual-post ${layout === 'two' ? 'two' : (layout === 'left' || layout === 'right' ? 'side ' + layout : 'center')}" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
 
-    const mediaTag = (src, type) => type==='video' 
+    const mediaTag = (src, type) => type === 'video'
       ? `<video class="visual-media" src="${src}" ${post.autoplay ? 'autoplay muted loop playsinline' : ''}></video>`
       : `<img class="visual-media" src="${src}" alt="">`;
 
@@ -223,27 +252,26 @@
           <div class="vp-media-wrap"><div class="vp-media-frame">${mediaTag(post.media, post.mediaType)}</div></div>
           <div class="vp-media-wrap"><div class="vp-media-frame">${mediaTag(post.media2, post.media2Type)}</div></div>
         </div>
-        <div class="visual-caption">${post.caption||''}</div>`;
+        <div class="visual-caption">${post.caption || ''}</div>`;
     } else if (layout === 'left' || layout === 'right') {
       inner = `
         <div class="vp-media-wrap"><div class="vp-media-frame">${mediaTag(post.media, post.mediaType)}</div></div>
-        <div class="visual-caption">${post.caption||''}</div>`;
+        <div class="visual-caption">${post.caption || ''}</div>`;
     } else {
       inner = `
         <div class="vp-media-wrap"><div class="vp-media-frame">${mediaTag(post.media, post.mediaType)}</div></div>
-        <div class="visual-caption">${post.caption||''}</div>`;
+        <div class="visual-caption">${post.caption || ''}</div>`;
     }
 
     const html = `<section ${shared}>${inner}</section>`;
     const wrap = document.createElement('div');
     wrap.innerHTML = html.trim();
     const node = wrap.firstElementChild;
-    setMobileMaxVH(node, post.mobileMaxVH != null ? post.mobileMaxVH : 45);
     postsEl.appendChild(node);
     revealOnIntersect(node);
   }
 
-  (async function run(){
+  (async function run() {
     try {
       const res = await fetch('posts.json');
       const posts = await res.json();
@@ -267,7 +295,7 @@
     const vid = document.querySelector('.hero-video');
     if (vid) {
       vid.setAttribute('playsinline', '');
-      const play = () => vid.play().catch(()=>{});
+      const play = () => vid.play().catch(() => { });
       if (vid.readyState >= 2) play(); else vid.addEventListener('loadeddata', play);
     }
   });

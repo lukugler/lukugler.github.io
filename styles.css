@@ -1,9 +1,20 @@
+/* ...existing code... */
 /* =========================
    Reset + Theme
    ========================= */
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
@@ -17,45 +28,63 @@ body {
   --post-height: 420px;
   --media-scale: 1;
   --gap: 10px;
-  --hover-green: #20A387E6; /* unified hover color with alpha */
+  --hover-green: #20A387E6;
+  /* unified hover color with alpha */
 
   /* Caption spacing controls */
-  --caption-gap-center: 10px; /* single visual (caption below) */
-  --caption-gap-two: 10px;    /* two visuals (caption below) */
+  --caption-gap-center: 10px;
+  /* single visual (caption below) */
+  --caption-gap-two: 10px;
+  /* two visuals (caption below) */
 
   /* Reserve space for two-layout caption block (line + padding) */
-  --two-caption-block: 40px;  /* change if your caption gets taller */
+  --two-caption-block: 40px;
+  /* change if your caption gets taller */
   /* Horizontal padding inside two-layout (12px left + 12px right) = 24px used below */
 }
 
 /* =========================
    Header (hero video)
    ========================= */
-.site-header, .hero { position: relative; }
+.site-header,
+.hero {
+  position: relative;
+}
+
 .hero {
   width: 100%;
   height: 454px;
   background: #0f0f0f;
   overflow: hidden;
 }
+
 .hero-video {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   filter: saturate(1.1) contrast(1.05);
 }
+
 .hero-overlay {
-  position: relative; z-index: 1;
-  width: 100%; height: 100%;
-  display: grid; place-items: center; text-align: center;
-  background: linear-gradient(to bottom, rgba(0,0,0,.25), rgba(0,0,0,.15));
-  color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.35);
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .25), rgba(0, 0, 0, .15));
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .35);
 }
 
 /* =========================
    Universal Button Styles
    ========================= */
-.btn, .about-btn {
+.btn,
+.about-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -69,8 +98,10 @@ body {
   cursor: pointer;
   text-decoration: none;
   font-size: 14px;
-  font-weight: 700;   /* bold */
-  font-style: italic; /* italic */
+  font-weight: 700;
+  /* bold */
+  font-style: italic;
+  /* italic */
   transition: background .25s ease, color .25s ease;
 }
 
@@ -85,34 +116,95 @@ body {
 /* =========================
    Layout wrappers
    ========================= */
-#content { max-width: var(--container-max); margin: 0 auto; padding: 24px; }
-.posts { display: grid; gap: var(--gap); margin-bottom: 80px; }
+#content {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.posts {
+  display: grid;
+  gap: var(--gap);
+  margin-bottom: 80px;
+}
 
 /* =========================
    Article cards
    ========================= */
+/* Allow cards to expand vertically on narrow viewports while preserving desktop height */
 .card {
-  height: var(--post-height);
+  min-height: var(--post-height);
   display: grid;
   grid-template-columns: 50% 1fr;
   background: #1a1a1a;
-  border: none; border-radius: 0; overflow: hidden; box-shadow: none;
-  opacity: 0; transform: translateY(8px);
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  opacity: 0;
+  transform: translateY(8px);
   transition: opacity .45s ease, transform .45s ease;
 }
-.card.revealed { opacity: 1; transform: translateY(0); }
 
-.media { position: relative; background: #111; }
-.media, .media img, .media video {
-  width: 100%; height: 100%; object-fit: cover; display: block;
+.card.revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
+
+/* Media container: center and avoid cropping by default */
+.media {
+  position: relative;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media img,
+.media video {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Provide a lightweight frame class for consistency with script-injected styles */
+.media-frame {
+  display: grid;
+  place-items: center;
+  width: var(--media-w, 100%);
+  height: var(--media-h, auto);
+  max-width: 100%;
+  overflow: hidden;
+  margin-inline: auto;
+}
+
+.media-frame>img,
+.media-frame>video {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Badge */
 .badge {
-  position: absolute; left: 10px; top: 10px;
-  background: rgba(15,23,42,.85); color: #fff;
-  padding: 4px 8px; font-size: 12px; border-radius: 999px;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  background: rgba(15, 23, 42, .85);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 999px;
 }
 
-.content { padding: 18px 20px; display: grid; gap: 10px; align-content: center; }
+.content {
+  padding: 18px 20px;
+  display: grid;
+  gap: 10px;
+  align-content: center;
+}
 
 /* ====== Headline (title) of article cards ====== */
 .content h3 {
@@ -128,9 +220,16 @@ body {
   color: #e5e7eb;
   text-decoration: underline;
 }
-.content h3 a:hover { color: var(--hover-green); }
 
-.meta { color: #a7b0bd; font-size: 13px; }
+.content h3 a:hover {
+  color: var(--hover-green);
+}
+
+.meta {
+  color: #a7b0bd;
+  font-size: 13px;
+}
+
 .excerpt {
   color: #d1d5db;
   line-height: 1.5;
@@ -138,7 +237,12 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.actions { display: flex; gap: 10px; margin-top: 6px; }
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
 
 /* =========================
    Visual posts (images / videos)
@@ -146,15 +250,23 @@ body {
 .visual-post {
   height: var(--post-height);
   background: #1a1a1a;
-  opacity: 0; transform: translateY(8px);
+  opacity: 0;
+  transform: translateY(8px);
   transition: opacity .45s ease, transform .45s ease;
   overflow: hidden;
 }
-.visual-post.revealed { opacity: 1; transform: translateY(0); }
+
+.visual-post.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 .vp-media-wrap {
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 }
 
@@ -175,7 +287,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 10px; /* baseline gap; layout-specific rules override below */
+  margin-top: 10px;
+  /* baseline gap; layout-specific rules override below */
 }
 
 /* ----- CENTER layout (caption below) ----- */
@@ -184,7 +297,11 @@ body {
   grid-template-rows: 1fr auto;
   padding: 8px 0 10px;
 }
-.visual-post.center .vp-media-wrap { padding: 0 12px; }
+
+.visual-post.center .vp-media-wrap {
+  padding: 0 12px;
+}
+
 .visual-post.center .visual-caption {
   padding: 4px 12px;
   font-style: italic;
@@ -199,9 +316,11 @@ body {
   padding: 12px;
   align-items: center;
 }
+
 .visual-post.side .visual-media {
   max-height: calc(var(--post-height) - 24px);
 }
+
 .visual-post.side .visual-caption {
   align-self: center;
   text-align: left;
@@ -211,14 +330,22 @@ body {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-.visual-post.right { direction: rtl; }
-.visual-post.right > * { direction: ltr; }
+
+.visual-post.right {
+  direction: rtl;
+}
+
+.visual-post.right>* {
+  direction: ltr;
+}
 
 /* ----- TWO (two medias with caption below) ----- */
 .visual-post.two {
   display: grid;
-  grid-template-rows: 1fr auto; /* media area + caption row */
-  padding: 12px;                /* 12px L/R padding = 24px total accounted for below */
+  grid-template-rows: 1fr auto;
+  /* media area + caption row */
+  padding: 12px;
+  /* 12px L/R padding = 24px total accounted for below */
   gap: 10px;
 }
 
@@ -227,13 +354,15 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  min-height: 0; min-width: 0;
-  height: calc(
-    var(--post-height)
-    - var(--two-caption-block)   /* reserved caption block height */
-    - 24px                       /* horizontal padding (12+12) also consumes vertical due to grid gap? safeguard */
-    - var(--caption-gap-two)     /* spacing between media and caption */
-  );
+  min-height: 0;
+  min-width: 0;
+  height: calc(var(--post-height) - var(--two-caption-block)
+      /* reserved caption block height */
+      - 24px
+      /* horizontal padding (12+12) also consumes vertical due to grid gap? safeguard */
+      - var(--caption-gap-two)
+      /* spacing between media and caption */
+    );
   overflow: hidden;
 }
 
@@ -265,6 +394,7 @@ body {
   padding: 28px 0 40px 0;
   margin-top: 28px;
 }
+
 .about-wrap {
   max-width: var(--container-max);
   margin: 0 auto;
@@ -274,6 +404,7 @@ body {
   gap: 18px;
   align-items: center;
 }
+
 .about-media img {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -284,6 +415,7 @@ body {
   max-width: 200px;
   margin: 0 auto;
 }
+
 .about-content h2,
 .about-content h3 {
   margin: 0 0 6px;
@@ -292,18 +424,23 @@ body {
   font-weight: 800;
   font-size: 28px;
 }
+
 .about-content a {
   color: #d1d5db;
   font-style: italic;
   text-decoration: underline;
 }
-.about-content a:hover { color: var(--hover-green); }
+
+.about-content a:hover {
+  color: var(--hover-green);
+}
 
 .about-links {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
+
 .about-links .btn {
   border-color: #2b2b2b;
   font-weight: 800;
@@ -328,9 +465,70 @@ body {
    Responsive tweaks
    ========================= */
 @media (max-width: 860px) {
-  :root { --post-height: 320px; --two-caption-block: 44px; }
-  .card { grid-template-columns: 1fr; }
-  .visual-post.side { grid-template-columns: 1fr; }
-  .about-wrap { grid-template-columns: 1fr; }
-  .about-media img { height: 200px; }
+  :root {
+    --post-height: 320px;
+    --two-caption-block: 44px;
+  }
+
+  .card {
+    grid-template-columns: 1fr;
+  }
+
+  .visual-post.side {
+    grid-template-columns: 1fr;
+  }
+
+  .about-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .about-media img {
+    height: 200px;
+  }
+}
+
+/* Extra: avoid cropping on medium widths as well (helps narrow desktop windows) */
+@media (max-width: 1100px) {
+  .card {
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .card .media,
+  .card .media-frame,
+  .card .media-frame>img,
+  .card .media-frame>video {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .card .media img,
+  .card .media video {
+    object-fit: contain !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Show full excerpt on medium / small widths */
+  .card .excerpt {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    -webkit-box-orient: unset !important;
+    overflow: visible !important;
+    max-height: none !important;
+    white-space: normal !important;
+  }
+
+  .card .content h3 {
+    font-size: clamp(20px, 3.2vw, 28px);
+    line-height: 1.2;
+  }
+
+  .card .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
