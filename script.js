@@ -155,6 +155,73 @@
         .card .content h3 { font-size: clamp(18px, 6vw, 26px); }
         .card .actions a.btn { padding: 6px 10px; font-size: 14px; }
       }
+
+      /* ---- Compare slider ---- */
+      .visual-post.compare .compare-wrap {
+        position: relative;
+        width: var(--vbox-w, 100%);
+        height: var(--vbox-h, auto);
+        max-width: 100%;
+        margin: 0 auto;
+        overflow: hidden;
+        touch-action: none;
+        user-select: none;
+        background: #0b0b0b;
+      }
+
+      .visual-post.compare .compare-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: contain;
+        max-height: var(--post-height, 420px);
+      }
+
+      .visual-post.compare .compare-top {
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 50%;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .visual-post.compare .compare-top .compare-img {
+        height: 100%;
+        width: auto;
+        min-width: 100%;
+      }
+
+      .visual-post.compare .compare-handle {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 28px; height: 28px; border-radius: 999px;
+        background: rgba(255,255,255,0.95);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+        border: 2px solid rgba(0,0,0,0.5);
+        left: 50%;
+        cursor: ew-resize;
+        z-index: 4;
+      }
+
+      .visual-post.compare .compare-handle:before {
+        content: '';
+        position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+        width: 2px; height: 14px; background: rgba(0,0,0,0.6);
+      }
+
+      .visual-post.compare .visual-caption { padding: 8px 12px; }
+
+      .visual-post.compare .compare-wrap.dragging .compare-handle {
+        transition: none;
+      }
+
+      @media (max-width: 1100px) {
+        .visual-post.compare .compare-wrap,
+        .visual-post.compare .compare-img,
+        .visual-post.compare .compare-top { width: 100% !important; height: auto !important; }
+        .visual-post.compare .compare-top { position: absolute; }
+      }
     `;
     const style = document.createElement('style');
     style.id = 'md-enhance-styles';
@@ -271,6 +338,99 @@
     revealOnIntersect(node);
   }
 
+  // Make a compare (swipe) post: two images stacked, draggable handle to reveal left/right
+  function makeCompare(post) {
+    const postsEl = document.querySelector('.posts');
+    const height = post.height || 420;
+    const scale = post.mediaScale || 1;
+
+    const wrapperStyle = `class="visual-post compare" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
+
+    const html = `
+      <section ${wrapperStyle}>
+        <div class="compare-wrap">
+          <img class="compare-img base" src="${post.media}" alt="">
+          <div class="compare-top">
+            <img class="compare-img top" src="${post.media2}" alt="">
+          </div>
+          <div class="compare-handle" tabindex="0" role="slider" aria-label="Image compare slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"></div>
+        </div>
+        <div class="visual-caption">${post.caption || ''}</div>
+      </section>`;
+
+    const wrap = document.createElement('div');
+    wrap.innerHTML = html.trim();
+    const node = wrap.firstElementChild;
+    postsEl.appendChild(node);
+    revealOnIntersect(node);
+
+    // after appended, init slider behavior
+    const compareWrap = node.querySelector('.compare-wrap');
+    const top = compareWrap.querySelector('.compare-top');
+    const handle = compareWrap.querySelector('.compare-handle');
+
+    // set initial width to 50%
+    function setPos(percent) {
+      percent = Math.max(0, Math.min(100, percent));
+      top.style.width = percent + '%';
+      handle.style.left = percent + '%';
+      handle.setAttribute('aria-valuenow', Math.round(percent));
+    }
+
+    setPos(50);
+
+    let dragging = false;
+
+    function clientToPercent(clientX) {
+      const rect = compareWrap.getBoundingClientRect();
+      const x = clientX - rect.left;
+      return (x / rect.width) * 100;
+    }
+
+    function onDown(e) {
+      dragging = true;
+      compareWrap.classList.add('dragging');
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      setPos(clientToPercent(clientX));
+      e.preventDefault();
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      setPos(clientToPercent(clientX));
+      e.preventDefault();
+    }
+
+    function onUp() {
+      dragging = false;
+      compareWrap.classList.remove('dragging');
+    }
+
+    handle.addEventListener('mousedown', onDown);
+    handle.addEventListener('touchstart', onDown, { passive: false });
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchend', onUp);
+
+    // allow clicking on the compare area to move the handle
+    compareWrap.addEventListener('click', (e) => {
+      const clientX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0;
+      setPos(clientToPercent(clientX));
+    });
+
+    // keyboard controls when handle focused
+    handle.addEventListener('keydown', (e) => {
+      const step = e.shiftKey ? 10 : 2;
+      const val = Number(handle.getAttribute('aria-valuenow')) || 50;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') setPos(val - step);
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') setPos(val + step);
+      if (e.key === 'Home') setPos(0);
+      if (e.key === 'End') setPos(100);
+    });
+  }
+
   (async function run() {
     try {
       const res = await fetch('posts.json');
@@ -279,6 +439,8 @@
       posts.forEach(post => {
         if (post.type === 'visual') {
           makeVisual(post);
+        } else if (post.type === 'compare') {
+          makeCompare(post);
         } else {
           makeArticleCard(post);
         }

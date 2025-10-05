@@ -84,5 +84,18 @@
     "mediaBoxW": 550,
     "mediaBoxH": 550,
     "mobileMaxVH": 50
+  },
+  {
+    "type": "compare",
+    "layout": "compare",
+    "media": "assets/grey_glacier_google.jpeg",
+    "mediaType": "image",
+    "media2": "assets/grey_glacier_1965.jpeg",
+    "media2Type": "image",
+    "caption": "Compare modern Google imagery with 1965 imagery of the grey glacier — drag the slider to reveal differences.",
+    "height": 480,
+    "mediaScale": 1,
+    "mediaBoxW": 480,
+    "mediaBoxH": 480
   }
 ]
