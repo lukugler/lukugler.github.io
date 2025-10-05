@@ -13,7 +13,7 @@
   {
     "type": "visual",
     "layout": "center",
-    "media": "assets/wide-landscape.jpg",
+    "media": "assets/sample-1.png",
     "mediaType": "image",
     "caption": "Evening light over the valley.",
     "height": 420,
@@ -23,7 +23,7 @@
   {
     "type": "visual",
     "layout": "left",
-    "media": "assets/loop.mp4",
+    "media": "assets/ani_1.mp4",
     "mediaType": "video",
     "caption": "A short looping animation on the left, caption on the right.",
     "height": 420,
@@ -33,7 +33,7 @@
   {
     "type": "visual",
     "layout": "right",
-    "media": "assets/panorama.jpg",
+    "media": "assets/sample-1.png",
     "mediaType": "image",
     "caption": "Media on the right, caption on the left.",
     "height": 420,
@@ -43,9 +43,9 @@
   {
     "type": "visual",
     "layout": "two",
-    "media": "assets/photoA.jpg",
+    "media": "assets/sample-1.png",
     "mediaType": "image",
-    "media2": "assets/photoB.jpg",
+    "media2": "assets/sample-1.png",
     "media2Type": "image",
     "caption": "Two visuals next to each other.",
     "height": 420,
