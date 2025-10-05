@@ -89,8 +89,8 @@ body {
 /* ====== Headline (title) of article cards ====== */
 .content h3 {
   margin: 0;
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
   font-style: italic;
 }
 
@@ -117,7 +117,7 @@ body {
   padding: 8px 12px; border-radius: 8px;
   cursor: pointer; text-decoration: none; font-size: 14px;
 }
-.btn:hover{ background: #cda8e3; }
+.btn:hover{ background: #20A387FF; }
 
 /* =========================
    Visual posts (images / videos)
@@ -154,7 +154,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 8px; /* ✅ add space between media and caption */
+  margin-top: 8px; /* add space between media and caption */
 }
 
 /* ----- CENTER layout ----- */
@@ -244,13 +244,18 @@ body {
   margin: 0 auto;         
 }
 
-.about-content h2{ margin: 0 0 6px; color: #eaf0f6; font-style: italic; font-weight: 700; font-size: 26px;}
+.about-content h3{ margin: 0 0 6px;
+                  color: #eaf0f6;
+                  font-style: italic;
+                  font-weight: 800;
+                  font-size: 28px;
+                 }
 .about-content a {
   color: #d1d5db;
   font-style: italic;
   text-decoration: underline;
 }
-.about-content a:hover { color: #60a5fa; }
+.about-content a:hover { color: #20A387FF; }
 
 .about-links {
   display: flex;
@@ -261,7 +266,7 @@ body {
 /* Make social/media/CV buttons bold and italic */
 .about-links .btn {
   border-color: #2b2b2b;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 /* =========================
