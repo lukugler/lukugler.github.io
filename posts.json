@@ -1,16 +1,5 @@
 [
   {
-    "title": "Standard article",
-    "excerpt": "Normal card with media and link.",
-    "media": "assets/sample-1.png",
-    "mediaType": "image",
-    "date": "2025-10-05",
-    "href": "articles/example.html",
-    "badge": "Intro",
-    "height": 420
-  },
-
-  {
     "type": "visual",
     "layout": "center",
     "media": "assets/sample-1.png",
@@ -50,5 +39,16 @@
     "caption": "Two visuals next to each other.",
     "height": 420,
     "mediaScale": 0.95
-  }
+  },
+  
+  {
+  "title": "Standard article",
+  "excerpt": "Normal card with media and link.",
+  "media": "assets/sample-1.png",
+  "mediaType": "image",
+  "date": "2025-10-05",
+  "href": "articles/example.html",
+  "badge": "Intro",
+  "height": 420
+  },
 ]
