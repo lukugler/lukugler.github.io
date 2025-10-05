@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Article</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    /* ---------- Markdown page layout + type ---------- */
+    body {
+      background: #1a1a1a;
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
+    }
+    main.md-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    header.md-header { margin-bottom: 14px; }
+    header.md-header h1 { font-size: 28px; font-weight: 800; font-style: italic; margin: 0 0 6px; }
+    header.md-header .meta { color: #a7b0bd; font-size: 14px; }
+    .md-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    a.btn { text-decoration: none; }
+    /* ---------- Rendered markdown ---------- */
+    #md-content { 
+      color: #d1d5db; line-height: 1.75; font-size: 16px; 
+      text-align: justify; text-justify: inter-word;
+    }
+    #md-content p { margin: 0 0 1.2em; }
+    #md-content h1, #md-content h2, #md-content h3, #md-content h4 { 
+      font-style: italic; font-weight: 800; color: #e5e7eb; 
+      margin-top: 1.2em;
+    }
+    #md-content a { color: #d1d5db; text-decoration: underline; font-style: italic; }
+    #md-content a:hover { color: #20A387E6; }
+    #md-content hr { border: none; border-top: 1px solid #2b2b2b; margin: 28px 0; }
+    #md-content code { background: #111; padding: 2px 6px; border-radius: 4px; }
+    #md-content pre { background: #0f0f0f; padding: 12px; border-radius: 6px; overflow: auto; }
+    #md-content img { max-width: 100%; height: auto; display:block; margin: 12px auto; }
+    #md-content blockquote { border-left: 3px solid #2b2b2b; padding-left: 12px; color: #cbd5e1; }
+  </style>
+  <!-- Marked (CDN) renders Markdown to HTML on the client -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <main class="md-container">
+    <header class="md-header">
+      <h1 id="page-title">Article</h1>
+      <p class="meta" id="page-date"></p>
+      <div class="md-actions">
+        <a class="btn" href="../index.html">Back to Home</a>
+        <a class="btn" id="raw-link" href="#" target="_blank" rel="noopener">View raw Markdown</a>
+      </div>
+    </header>
+
+    <article id="md-content" aria-label="Article body">
+      <noscript>Please enable JavaScript to render Markdown.</noscript>
+    </article>
+  </main>
+
+  <script>
+    // Grab ?src=articles/your-file.md&title=...&date=yyyy-mm-dd from the URL
+    const params = new URLSearchParams(location.search);
+    const src = params.get('src');
+    const title = params.get('title');
+    const date = params.get('date');
+
+    if (title) document.getElementById('page-title').textContent = title;
+    if (date) {
+      // Render as a friendly date if possible
+      try {
+        const d = new Date(date);
+        const fmt = d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
+        document.getElementById('page-date').textContent = 'Posted on ' + fmt;
+      } catch(e) {}
+    }
+
+    if (!src) {
+      document.getElementById('md-content').innerHTML = '<p>Missing article source (src)</p>';
+    } else {
+      document.getElementById('raw-link').href = '../' + src;
+      fetch('../' + src)
+        .then(r => {
+          if (!r.ok) throw new Error('Could not load ' + src);
+          return r.text();
+        })
+        .then(md => {
+          // If no explicit title was passed, try to derive from first H1 in MD
+          if (!title) {
+            const h1 = md.match(/^#\s+(.+)$/m);
+            if (h1 && h1[1]) document.getElementById('page-title').textContent = h1[1].trim();
+          }
+          document.getElementById('md-content').innerHTML = marked.parse(md);
+        })
+        .catch(err => {
+          document.getElementById('md-content').innerHTML = '<p style="color:#fca5a5;">' + err.message + '</p>';
+        });
+    }
+  </script>
+</body>
+</html>
