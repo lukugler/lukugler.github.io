@@ -2,6 +2,62 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 
+/* === Uniform post height for all types === */
+
+/* Adjust this value to what looks right on your screen */
+:root {
+  --post-height: 420px;
+}
+
+/* Normal article cards */
+.card {
+  height: var(--post-height);
+  grid-template-columns: 50% 1fr;
+  overflow: hidden;
+}
+
+/* Make sure media and content fit that height */
+.card .media,
+.card .media img,
+.card .media video {
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Visual posts (images or videos only) */
+.visual-post {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--post-height);
+  margin: 0 0 24px 0; /* same spacing as cards */
+  overflow: hidden;
+  position: relative;
+}
+
+/* The media itself */
+.visual-post .visual-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* Optional: caption overlaid or below */
+.visual-caption {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #e5e7eb;
+  font-style: italic;
+  font-size: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 0;
+}
+
+
 /* Global dark theme */
 body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
