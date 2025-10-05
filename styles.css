@@ -237,8 +237,19 @@ body {
 .about-content a:hover {
   color: #60a5fa;        /* light blue hover color (matches buttons) */
 }
-.about-links{ display: flex; flex-wrap: wrap; gap: 10px; }
-.about-links .btn{ border-color: #2b2b2b; }
+
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Make social/media/CV buttons bold and italic */
+.about-links .btn {
+  border-color: #2b2b2b;
+  font-weight: 700;         
+}
+
 
 /* =========================
    Footer
