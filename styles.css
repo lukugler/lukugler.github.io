@@ -16,7 +16,7 @@ body {
   --container-max: 1100px;   /* max width for main content */
   --post-height: 420px;      /* DEFAULT fixed height for any post (can be overridden per-post) */
   --media-scale: 1;          /* DEFAULT scale (0.3–1) for visual media width/area */
-  --gap: 18px;               /* default gap in grids */
+  --gap: 10px;               /* default gap in grids */
 }
 
 /* =========================
