@@ -13,7 +13,7 @@ body {
 
 /* Container widths and shared variables */
 :root {
-  --container-max: 1300px;
+  --container-max: 1100px;
   --post-height: 420px;
   --media-scale: 1;
   --gap: 10px;
