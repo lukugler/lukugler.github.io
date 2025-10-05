@@ -7,20 +7,20 @@
     "badge": "Intro",
     "date": "2025-10-04",
     "href": "articles/example.html",
-    "height": 420
+    "height": 840
   },
   {
     "type": "visual",
     "media": "assets/est_1.png",
     "mediaType": "image",
     "caption": "Evening light over the valley.",
-    "height": 420
+    "height": 840
   },
   {
     "type": "visual",
     "media": "assets/ani_1.mp4",
     "mediaType": "video",
     "caption": "A short animation test.",
-    "height": 420
+    "height": 840
   }
 ]
