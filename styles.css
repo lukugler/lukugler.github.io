@@ -20,8 +20,8 @@ body {
   --hover-green: #20A387E6; /* unified hover color with alpha */
 
   /* Caption spacing controls */
-  --caption-gap-center: 16px; /* single visual (caption below) */
-  --caption-gap-two: 16px;    /* two visuals (caption below) */
+  --caption-gap-center: 10px; /* single visual (caption below) */
+  --caption-gap-two: 10px;    /* two visuals (caption below) */
 
   /* Reserve space for two-layout caption block (line + padding) */
   --two-caption-block: 40px;  /* change if your caption gets taller */
