@@ -85,7 +85,26 @@ body {
 }
 
 .content{ padding: 18px 20px; display: grid; gap: 10px; align-content: center; }
-.content h3{ margin: 0; font-size: 26px; font-weight: 700; color: #e5e7eb; }
+
+/* ====== Headline (title) of article cards ====== */
+.content h3 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* Headline links (same color as text, underlined) */
+.content h3 a,
+.content h3 a:visited {
+  color: #e5e7eb;           /* same as body text */
+  text-decoration: underline;
+}
+
+.content h3 a:hover {
+  color: #60a5fa;           /* light blue on hover */
+}
+
 .meta{ color: #a7b0bd; font-size: 13px; }
 .excerpt{ color: #d1d5db; line-height: 1.5; max-height: 3.5em; overflow: hidden; text-overflow: ellipsis; }
 .actions{ display: flex; gap: 10px; margin-top: 6px; }
@@ -102,14 +121,7 @@ body {
 
 /* =========================
    Visual posts (images / videos)
-   Supports 4 layouts:
-   - .center : media centered, caption below (both inside fixed height)
-   - .left   : media on left, caption on right
-   - .right  : media on right, caption on left
-   - .two    : two medias side-by-side, optional caption below
    ========================= */
-
-/* Base visual-post container: fixed height block */
 .visual-post{
   height: var(--post-height);
   background: #1a1a1a;
@@ -119,42 +131,44 @@ body {
 }
 .visual-post.revealed{ opacity: 1; transform: translateY(0); }
 
-/* Common wrapper for media area (lets us center/scale cleanly) */
 .vp-media-wrap{
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
 }
 
-/* Media node itself (img or video) */
 .visual-media{
-  /* For 'center' layout we use object-fit: contain so it won't fill entire height */
   max-width: calc(var(--container-max) * var(--media-scale));
   max-height: 100%;
   width: 100%;
   height: auto;
-  object-fit: contain;   /* do not crop by default in center/two */
+  object-fit: contain;
   display: block;
 }
 
 /* Caption shared styles */
 .visual-caption{
-  color: #cbd5e1; font-size: 14px;
-  text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: #cbd5e1;
+  font-size: 14px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 8px; /* ✅ add space between media and caption */
 }
 
 /* ----- CENTER layout ----- */
 .visual-post.center{
   display: grid;
-  grid-template-rows: 1fr auto;          /* media area then caption row */
-  padding: 8px 0 10px;                    /* small internal padding */
+  grid-template-rows: 1fr auto;
+  padding: 8px 0 10px;
 }
 .visual-post.center .vp-media-wrap{
-  /* media centered in the top row */
   padding: 0 12px;
 }
 .visual-post.center .visual-caption{
-  padding: 4px 12px; font-style: italic;
+  padding: 4px 12px;
+  font-style: italic;
 }
 
 /* ----- LEFT / RIGHT (media + caption side-by-side) ----- */
@@ -166,42 +180,45 @@ body {
   align-items: center;
 }
 .visual-post.side .visual-media{
-  /* In side layouts we fill the column height but keep aspect by 'contain' */
   max-height: calc(var(--post-height) - 24px);
 }
 .visual-post.side .visual-caption{
   align-self: center;
-  text-align: left; white-space: normal;          /* allow up to two lines */
-  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  text-align: left;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 .visual-post.right{
-  /* Flip columns for media on the right, caption on the left */
-  direction: rtl;                       /* flip grid flow */
+  direction: rtl;
 }
-.visual-post.right > *{ direction: ltr; } /* but keep children text normal */
+.visual-post.right > *{ direction: ltr; }
 
 /* ----- TWO (two medias next to each other) ----- */
 .visual-post.two{
   display: grid;
-  grid-template-rows: 1fr auto;      /* top grid for medias, caption row below */
+  grid-template-rows: 1fr auto;
   padding: 12px;
   gap: 10px;
 }
 .visual-post.two .two-grid{
   display: grid;
-  grid-template-columns: 1fr 1fr;    /* two equal columns */
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   min-height: 0; min-width: 0;
 }
 .visual-post.two .vp-media-wrap{
-  /* both medias fit inside the fixed height area */
-  height: calc(var(--post-height) - 48px);  /* leave room for caption if present */
+  height: calc(var(--post-height) - 48px);
 }
 .visual-post.two .visual-media{
   max-height: 100%;
 }
 .visual-post.two .visual-caption{
-  padding: 2px 6px; font-style: italic;
+  padding: 2px 6px;
+  font-style: italic;
+  margin-top: 8px; /* ✅ add space between media and caption */
 }
 
 /* =========================
@@ -229,14 +246,11 @@ body {
 
 .about-content h2{ margin: 0 0 6px; color: #eaf0f6; font-style: italic; font-weight: 700; font-size: 26px;}
 .about-content a {
-  color: #d1d5db;        /* same as text */
-  font-style: italic;    /* make it cursive */
-  text-decoration: underline; /* keep underlined */
+  color: #d1d5db;
+  font-style: italic;
+  text-decoration: underline;
 }
-
-.about-content a:hover {
-  color: #60a5fa;        /* light blue hover color (matches buttons) */
-}
+.about-content a:hover { color: #60a5fa; }
 
 .about-links {
   display: flex;
@@ -247,14 +261,18 @@ body {
 /* Make social/media/CV buttons bold and italic */
 .about-links .btn {
   border-color: #2b2b2b;
-  font-weight: 700;         
+  font-weight: 700;
 }
-
 
 /* =========================
    Footer
    ========================= */
-.site-footer{ text-align: center; padding: 18px; color: #a7b0bd; font-size: 14px; }
+.site-footer{
+  text-align: center;
+  padding: 18px;
+  color: #a7b0bd;
+  font-size: 14px;
+}
 
 /* =========================
    Responsive tweaks
@@ -263,7 +281,7 @@ body {
   :root{ --post-height: 320px; }
   .card{ grid-template-columns: 1fr; }
   .visual-post.side{
-    grid-template-columns: 1fr;  /* stack on small screens */
+    grid-template-columns: 1fr;
   }
   .about-wrap{ grid-template-columns: 1fr; }
   .about-media img{ height: 200px; }
