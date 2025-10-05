@@ -43,7 +43,7 @@ body {
   color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.35);
 }
 
-/* Top-right _about me button */
+/* Top-right about me button */
 .about-btn{
   position: relative;
   background: none; border: none;
@@ -228,7 +228,15 @@ body {
 }
 
 .about-content h2{ margin: 0 0 6px; color: #eaf0f6; font-style: italic; font-weight: 500; font-size: 22px;}
-.about-content p{ color: #d1d5db; margin: 6px 0 14px; line-height: 1.6; }
+.about-content a {
+  color: #d1d5db;        /* same as text */
+  font-style: italic;    /* make it cursive */
+  text-decoration: underline; /* keep underlined */
+}
+
+.about-content a:hover {
+  color: #60a5fa;        /* light blue hover color (matches buttons) */
+}
 .about-links{ display: flex; flex-wrap: wrap; gap: 10px; }
 .about-links .btn{ border-color: #2b2b2b; }
 
