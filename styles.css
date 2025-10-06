@@ -393,9 +393,10 @@ body {
 .excerpt {
   color: #d1d5db;
   line-height: 1.5;
-  max-height: 3.5em;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Always show the full excerpt text; do not truncate */
+  max-height: none;
+  overflow: visible;
+  text-overflow: unset;
 }
 
 .actions {
@@ -445,6 +446,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   margin-top: var(--caption-gap-center);
+  font-weight: 700;
 }
 
 /* CENTER layout */

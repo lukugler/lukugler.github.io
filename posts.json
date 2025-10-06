@@ -2,13 +2,42 @@
   {
     "type": "visual",
     "layout": "center",
-    "media": "assets/sample-1.png",
+    "media": "assets/grey_glacier_1980.jpeg",
+    "media2": "assets/grey_glacier_google.jpeg",
     "mediaType": "image",
-    "caption": "Evening light over the valley.",
-    "height": 420,
-    "mediaScale": 0.95,
-    "mediaBoxW": 420,
-    "mediaBoxH": 420
+    "media2Type": "image",
+    "caption": "Grey Glacier (Patagonia) comparison: 1980 vs 2022.",
+    "height": 1200,
+    "mediaScale": 1.0,
+    "mediaBoxW": 1200,
+    "mediaBoxH": 1200,
+    "subtype": "compare"
+  },
+  {
+    "title": "Advances in Historical Aerial Image Analysis: Boosting SfM Pipelines with Learned Models",
+    "excerpt": "For 2025 EGU conference we did inital tests with learned feature extractors/matchers (e.g., SuperPoint, SuperGlue, LoFTR) to evaluate SfM processes on scanned historical aerial photos (using only open-source solutions). For the study 1980 Southern Patagonian imagery were used. We compare model combos with reprojection and co-registration metrics.",
+    "media": "assets/post_4_ani.mp4",
+    "mediaType": "video",
+    "date": "2025-10-05",
+    "href": "articles/EGU25_Grey_Glacier.md",
+    "height": 600,
+    "layout": "media-left",
+    "mediaBoxW": 600,
+    "mediaBoxH": 600,
+    "mobileMaxVH": 50,
+    "presentation": "assets/posters/EGU_25_presentation.pdf",
+    "conferenceAbstract": "https://meetingorganizer.copernicus.org/EGU25/EGU25-17688.html"
+  },
+  {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/grey_glacier_long.png",
+    "mediaType": "image",
+    "caption": "Reculus Glacier (Patagonia) 1980.",
+    "height": 330,
+    "mediaScale": 1.0,
+    "mediaBoxW": 1100,
+    "mediaBoxH": 330
   },
   {
     "type": "visual",
@@ -40,10 +69,10 @@
     "media2": "assets/post_3_sn_1975.jpeg",
     "media2Type": "image",
     "caption": "CORONA imagery over Leisnig (Saxony) 1965 & 1975.",
-    "height": 550,
-    "mediaScale": 0.8,
-    "mediaBoxW": 500,
-    "mediaBoxH": 500
+    "height": 600,
+    "mediaScale": 0.9,
+    "mediaBoxW": 600,
+    "mediaBoxH": 600
   },
   {
     "title": "Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony",
@@ -52,10 +81,10 @@
     "mediaType": "image",
     "date": "2025-10-05",
     "href": "articles/harvesting-corona.md",
-    "height": 550,
+    "height": 600,
     "layout": "media-left",
-    "mediaBoxW": 550,
-    "mediaBoxH": 550,
+    "mediaBoxW": 600,
+    "mediaBoxH": 600,
     "mobileMaxVH": 50,
     "poster": "assets/posters/harvesting-corona-poster.pdf",
     "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en",
@@ -67,24 +96,10 @@
     "media": "assets/post_3_dd_1975.png",
     "mediaType": "image",
     "caption": "CORONA Imagery over Dresden 1975.",
-    "height": 275,
+    "height": 300,
     "mediaScale": 1,
-    "mediaBoxW": 1100,
-    "mediaBoxH": 275
-  },
-  {
-    "type": "visual",
-    "layout": "center",
-    "media": "assets/grey_glacier_1980.jpeg",
-    "media2": "assets/grey_glacier_google.jpeg",
-    "mediaType": "image",
-    "media2Type": "image",
-    "caption": "Glacier comparison: 1980 vs Google (before/after).",
-    "height": 1100,
-    "mediaScale": 1.0,
-    "mediaBoxW": 1100,
-    "mediaBoxH": 1100,
-    "subtype": "compare"
+    "mediaBoxW": 1200,
+    "mediaBoxH": 300
   },
   {
     "title": "Telegram Network Analysis of the Saxon right-wing party Free Saxony",
@@ -93,10 +108,10 @@
     "mediaType": "image",
     "date": "2025-10-05",
     "href": "articles/network_anlysis.md",
-    "height": 550,
+    "height": 600,
     "layout": "media-left",
-    "mediaBoxW": 550,
-    "mediaBoxH": 550,
+    "mediaBoxW": 600,
+    "mediaBoxH": 600,
     "mobileMaxVH": 50
   }
 ]

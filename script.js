@@ -187,8 +187,9 @@
       ? `articles/article.html?src=${encodeURIComponent(post.href)}&title=${encodeURIComponent(post.title || '')}&date=${encodeURIComponent(post.date || '')}`
       : (post.href || '#');
 
+    const shouldAutoplay = (post.autoplay === undefined) ? true : Boolean(post.autoplay);
     const mediaTag = post.mediaType === 'video'
-      ? `<video src="${post.media}" ${post.autoplay ? 'autoplay muted loop playsinline' : ''} poster="${post.poster || ''}"></video>`
+      ? `<video src="${post.media}" ${shouldAutoplay ? 'autoplay muted loop playsinline' : ''} poster="${post.poster || ''}"></video>`
       : `<img src="${post.media}" alt="">`;
 
     const badge = post.badge ? `<div class="badge">${post.badge}</div>` : '';
@@ -213,7 +214,9 @@
           <div class="actions">
             ${post.viewer ? `<a class="btn" href="${post.viewer}" target="_blank" rel="noopener">Viewer</a>` : ''}
             ${post.projectReport ? `<a class="btn" href="${post.projectReport}" target="_blank" rel="noopener">Project Report</a>` : ''}
+            ${post.presentation ? `<a class="btn" href="${post.presentation}" target="_blank" rel="noopener">Presentation</a>` : ''}
             ${post.poster ? `<a class="btn" href="${post.poster}" target="_blank" rel="noopener">Poster</a>` : ''}
+            ${post.conferenceAbstract ? `<a class="btn" href="${post.conferenceAbstract}" target="_blank" rel="noopener">Conference Abstract</a>` : ''}
             ${aHref && aHref !== '#' ? `<a class="btn" href="${aHref}">Read</a>` : ''}
           </div>
         </div>
@@ -239,8 +242,9 @@
 
     const shared = `class="visual-post ${layout === 'two' ? 'two' : (layout === 'left' || layout === 'right' ? 'side ' + layout : 'center')}" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
 
+    const shouldAutoplayVisual = (post.autoplay === undefined) ? true : Boolean(post.autoplay);
     const mediaTag = (src, type) => type === 'video'
-      ? `<video class="visual-media" src="${src}" ${post.autoplay ? 'autoplay muted loop playsinline' : ''}></video>`
+      ? `<video class="visual-media" src="${src}" ${shouldAutoplayVisual ? 'autoplay muted loop playsinline' : ''}></video>`
       : `<img class="visual-media" src="${src}" alt="">`;
 
     let inner = '';
