@@ -1,4 +1,164 @@
 /* ...existing code... */
+
+/* ===== Compare (before/after) slider styles ===== */
+.compare .vp-media-frame {
+  position: relative;
+  padding: 0;
+  background: #000;
+}
+
+.compare .compare-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.compare .before,
+.compare .after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.compare .before .content-image,
+.compare .after .content-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.compare .after {
+  width: 125px;
+  /* initial visible width; overridden by JS */
+}
+
+.compare .scroller {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  opacity: .92;
+  pointer-events: auto;
+  border: 5px solid #fff;
+  box-sizing: border-box;
+}
+
+.compare .scroller:hover {
+  opacity: 1;
+}
+
+.compare .scroller.scrolling {
+  pointer-events: none;
+  opacity: 1;
+}
+
+.compare .scroller__thumb {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.compare .scroller:before,
+.compare .scroller:after {
+  content: " ";
+  display: block;
+  width: 7px;
+  height: 9999px;
+  position: absolute;
+  left: 50%;
+  margin-left: -3.5px;
+  z-index: 30;
+  transition: .1s;
+  background: #fff;
+}
+
+.compare .scroller:before {
+  top: 100%;
+}
+
+.compare .scroller:after {
+  bottom: 100%;
+}
+
+/* Ensure scroller is above images */
+.compare .scroller {
+  z-index: 40;
+}
+
+.compare .before,
+.compare .after {
+  z-index: 10;
+}
+
+/* Accessibility: focus state */
+.compare .scroller:focus {
+  outline: 3px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Responsiveness: on small screens use object-fit: contain to avoid cropping important parts */
+@media (max-width: 900px) {
+
+  .compare .before .content-image,
+  .compare .after .content-image {
+    object-fit: contain;
+  }
+
+  .compare .scroller {
+    width: 44px;
+    height: 44px;
+    border-width: 4px;
+  }
+}
+
+/* make scroller slightly smaller on very narrow phones to avoid overflow */
+@media (max-width: 420px) {
+  .compare .scroller {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+  }
+}
+
+/* Make sure visual-caption below compare stays readable */
+.compare .visual-caption {
+  padding: 8px 12px;
+  font-style: italic;
+  color: #cbd5e1;
+}
+
+/* Keep compare frames from collapsing on narrow viewports.
+   Other responsive rules set vp-media-frame to height:auto which makes
+   absolutely-positioned before/after images collapse to 0 height. Give
+   compare frames an intrinsic aspect ratio and a small min-height so
+   they scale with width instead of disappearing on phones. */
+.visual-post.compare .vp-media-frame,
+.compare .vp-media-frame {
+  /* prefer a 16:9 display but allow per-post override via --vbox-w / --vbox-h */
+  aspect-ratio: 16 / 9;
+  /* honor post-specified box size, but never exceed the container */
+  width: var(--vbox-w, 100%);
+  max-width: 100%;
+  /* allow explicit height from post, otherwise fall back to auto (keeps aspect-ratio) */
+  height: var(--vbox-h, auto) !important;
+  min-height: 120px;
+  max-height: 85vh;
+  overflow: hidden;
+}
+
 /* Full corrected stylesheet — no // comments, balanced braces, includes fixes for 'two' captions and iframe touch handling. */
 
 /* Reset + basics */
@@ -552,6 +712,7 @@ body {
   .card .excerpt {
     display: block !important;
     -webkit-line-clamp: unset !important;
+    line-clamp: unset !important;
     -webkit-box-orient: unset !important;
     overflow: visible !important;
     max-height: none !important;
@@ -587,6 +748,7 @@ body {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
 }

@@ -73,6 +73,20 @@
     "mediaBoxH": 275
   },
   {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/grey_glacier_1980.jpeg",
+    "media2": "assets/grey_glacier_google.jpeg",
+    "mediaType": "image",
+    "media2Type": "image",
+    "caption": "Glacier comparison: 1980 vs Google (before/after).",
+    "height": 1100,
+    "mediaScale": 1.0,
+    "mediaBoxW": 1100,
+    "mediaBoxH": 1100,
+    "subtype": "compare"
+  },
+  {
     "title": "Telegram Network Analysis of the Saxon right-wing party Free Saxony",
     "excerpt": "For a Friends semester project in Political Science I collected a database of Telegram channels in the sphere of the right wing partie Freie Sachsen",
     "media": "assets/post_2_header_tele.jpeg",

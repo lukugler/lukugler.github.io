@@ -63,13 +63,11 @@
       /* ---- Visual posts ---- */
       .visual-post { position: relative; }
       .visual-post .vp-media-wrap { display: flex; align-items: center; justify-content: center; }
-      .visual-post .vp-media-frame {
-        display: grid; place-items: center;
-        width: var(--vbox-w, 100%); height: var(--vbox-h, auto);
-        max-width: 100%;
-        overflow: hidden;
-        margin-inline: auto;
-      }
+        .visual-post .vp-media-frame { width: var(--vbox-w, 100%) !important; max-width: 100% !important; height: var(--vbox-h, auto) !important; overflow: visible !important; }
+        .visual-post .vp-media-frame > img,
+        .visual-post .vp-media-frame > video {
+          width: 100%; height: auto; object-fit: contain; display: block;
+        }
       .visual-post .vp-media-frame > img,
       .visual-post .vp-media-frame > video {
         width: 100%; height: auto; object-fit: contain; display: block;
@@ -99,12 +97,12 @@
         .card .media-frame > video,
         .visual-post .vp-media-frame > img,
         .visual-post .vp-media-frame > video {
-          width: 100% !important;
-          height: auto !important;
-          max-width: 100% !important;
-          max-height: none !important;  /* remove vh cap */
-          object-fit: contain !important;
-        }
+            width: var(--vbox-w, 100%) !important;
+            height: var(--vbox-h, auto) !important;
+            max-width: 100% !important;
+            max-height: none !important;  /* remove vh cap */
+            object-fit: contain !important;
+          }
 
         /* Absolutely no truncation on the description */
         .card .excerpt {
@@ -271,6 +269,157 @@
     revealOnIntersect(node);
   }
 
+  // Create a compare (before/after) post
+  function makeCompare(post) {
+    const postsEl = document.querySelector('.posts');
+    const height = post.height || 420;
+    const shared = `class="visual-post compare center" style="--post-height:${height}px; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
+
+    const beforeTag = `<img class="content-image" src="${post.media}" draggable="false" alt="before">`;
+    const afterTag = `<img class="content-image" src="${post.media2}" draggable="false" alt="after">`;
+
+    const inner = `
+      <div class="vp-media-wrap">
+        <div class="vp-media-frame">
+          <div class="compare-wrapper">
+            <div class="before">${beforeTag}</div>
+            <div class="after">${afterTag}</div>
+            <div class="scroller" role="slider" aria-label="Compare slider" aria-valuemin="0" aria-valuemax="100">
+              <svg class="scroller__thumb" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><polygon points="0 50 37 68 37 32 0 50" style="fill:#fff"/><polygon points="100 50 64 32 64 68 100 50" style="fill:#fff"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="visual-caption">${post.caption || ''}</div>`;
+
+    const html = `<section ${shared}>${inner}</section>`;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = html.trim();
+    const node = wrap.firstElementChild;
+    postsEl.appendChild(node);
+    revealOnIntersect(node);
+
+    // Initialize interactive behaviour for this compare instance
+    initCompare(node);
+  }
+
+  // Initialize a compare slider for a visual-post.compare node
+  function initCompare(sectionEl) {
+    const wrapper = sectionEl.querySelector('.compare-wrapper');
+    if (!wrapper) return;
+    const scroller = wrapper.querySelector('.scroller');
+    const after = wrapper.querySelector('.after');
+    let active = false;
+    // store fractional position to preserve on resize
+    let frac = 0.25;
+
+    function setPosFromPixel(x) {
+      const rect = wrapper.getBoundingClientRect();
+      let rel = x - rect.left;
+      let w = wrapper.offsetWidth || rect.width || 1;
+      let transform = Math.max(0, Math.min(rel, w));
+      frac = transform / w;
+      after.style.width = transform + 'px';
+      scroller.style.left = (transform - (scroller.offsetWidth / 2)) + 'px';
+      // lock image pixel sizes to avoid layout/reflow when moving the scroller
+      const imgs = wrapper.querySelectorAll('.content-image');
+      imgs.forEach(img => {
+        img.style.width = w + 'px';
+        img.style.height = wrapper.offsetHeight + 'px';
+        img.style.objectFit = 'contain';
+        img.style.objectPosition = 'center center';
+      });
+      // update ARIA value
+      const ariaVal = Math.round((frac * 100));
+      scroller.setAttribute('aria-valuenow', ariaVal);
+    }
+
+    function scrollIt(x) { setPosFromPixel(x); }
+
+    // mouse
+    scroller.addEventListener('mousedown', function (e) {
+      active = true;
+      scroller.classList.add('scrolling');
+      e.preventDefault();
+    });
+    document.body.addEventListener('mouseup', function () {
+      active = false;
+      scroller.classList.remove('scrolling');
+    });
+    document.body.addEventListener('mouseleave', function () {
+      active = false;
+      scroller.classList.remove('scrolling');
+    });
+    document.body.addEventListener('mousemove', function (e) {
+      if (!active) return;
+      scrollIt(e.pageX);
+    });
+
+    // touch
+    scroller.addEventListener('touchstart', function (e) {
+      active = true;
+      scroller.classList.add('scrolling');
+      e.preventDefault();
+    }, { passive: false });
+    document.body.addEventListener('touchend', function () {
+      active = false;
+      scroller.classList.remove('scrolling');
+    });
+    document.body.addEventListener('touchcancel', function () {
+      active = false;
+      scroller.classList.remove('scrolling');
+    });
+    document.body.addEventListener('touchmove', function (e) {
+      if (!active) return;
+      const t = e.touches[0];
+      scrollIt(t.pageX);
+    }, { passive: false });
+
+    // allow dragging by clicking on wrapper to jump
+    wrapper.addEventListener('click', function (e) {
+      setPosFromPixel(e.pageX);
+    });
+
+    // preserve fraction on resize
+    function onResize() {
+      const w = wrapper.offsetWidth || wrapper.getBoundingClientRect().width || 1;
+      const px = Math.round(frac * w);
+      after.style.width = px + 'px';
+      scroller.style.left = (px - (scroller.offsetWidth / 2)) + 'px';
+      // update locked image pixel dimensions on resize
+      const imgs = wrapper.querySelectorAll('.content-image');
+      imgs.forEach(img => {
+        img.style.width = w + 'px';
+        img.style.height = wrapper.offsetHeight + 'px';
+        img.style.objectFit = 'contain';
+        img.style.objectPosition = 'center center';
+      });
+    }
+    window.addEventListener('resize', onResize);
+
+    // initial state: ensure images are sized once loaded and open a bit so both are visible
+    const imgs = wrapper.querySelectorAll('.content-image');
+    let loaded = 0;
+    function oneLoaded() {
+      loaded += 1;
+      if (loaded >= imgs.length) {
+        // size images to wrapper and set initial position
+        const w = wrapper.offsetWidth || wrapper.getBoundingClientRect().width || 1;
+        imgs.forEach(img => {
+          img.style.width = w + 'px';
+          img.style.height = wrapper.offsetHeight + 'px';
+          img.style.objectFit = 'contain';
+          img.style.objectPosition = 'center center';
+        });
+        const initPx = Math.min(150, Math.round(wrapper.offsetWidth * 0.25));
+        setPosFromPixel(wrapper.getBoundingClientRect().left + initPx);
+      }
+    }
+    imgs.forEach(img => {
+      if (img.complete) oneLoaded(); else img.addEventListener('load', oneLoaded);
+    });
+  }
+
   (async function run() {
     try {
       const res = await fetch('posts.json');
@@ -278,7 +427,12 @@
 
       posts.forEach(post => {
         if (post.type === 'visual') {
-          makeVisual(post);
+          // support a compare subtype inside visual posts
+          if (post.subtype === 'compare' || post.compare === true) {
+            makeCompare(post);
+          } else {
+            makeVisual(post);
+          }
         } else {
           makeArticleCard(post);
         }
