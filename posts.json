@@ -7,10 +7,10 @@
     "mediaType": "image",
     "media2Type": "image",
     "caption": "Grey Glacier (Patagonia) comparison: 1980 vs 2022.",
-    "height": 1200,
+    "height": 1100,
     "mediaScale": 1.0,
-    "mediaBoxW": 1200,
-    "mediaBoxH": 1200,
+    "mediaBoxW": 1100,
+    "mediaBoxH": 1100,
     "subtype": "compare"
   },
   {
@@ -20,10 +20,10 @@
     "mediaType": "video",
     "date": "2025-10-05",
     "href": "articles/EGU25_Grey_Glacier.md",
-    "height": 600,
+    "height": 550,
     "layout": "media-left",
-    "mediaBoxW": 600,
-    "mediaBoxH": 600,
+    "mediaBoxW": 550,
+    "mediaBoxH": 550,
     "mobileMaxVH": 50,
     "presentation": "assets/posters/EGU_25_presentation.pdf",
     "conferenceAbstract": "https://meetingorganizer.copernicus.org/EGU25/EGU25-17688.html"
