@@ -2,6 +2,18 @@
   {
     "type": "visual",
     "layout": "center",
+    "media": "assets/model.glb",
+    "mediaType": "model",
+    "caption": "Interactive 3D model viewer (GLB). Use mouse/touch to rotate and pinch to zoom.",
+    "height": 700,
+    "mediaScale": 1.0,
+    "mediaBoxW": 1100,
+    "mediaBoxH": 700,
+    "subtype": "model"
+  },
+  {
+    "type": "visual",
+    "layout": "center",
     "media": "assets/grey_glacier_1980.jpeg",
     "media2": "assets/grey_glacier_google.jpeg",
     "mediaType": "image",
@@ -12,18 +24,6 @@
     "mediaBoxW": 700,
     "mediaBoxH": 700,
     "subtype": "compare"
-  },
-  {
-    "type": "visual",
-    "layout": "center",
-    "media": "assets/model.glb",
-    "mediaType": "model",
-    "caption": "Interactive 3D model viewer (GLB). Use mouse/touch to rotate and pinch to zoom.",
-    "height": 700,
-    "mediaScale": 1.0,
-    "mediaBoxW": 1100,
-    "mediaBoxH": 700,
-    "subtype": "model"
   },
   {
     "title": "Advances in Historical Aerial Image Analysis: Boosting SfM Pipelines with Learned Models",
