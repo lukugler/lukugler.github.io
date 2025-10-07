@@ -469,16 +469,19 @@
         // Default camera-orbit is set closer (smaller radius) so the model appears zoomed-in.
         // You can override per-post by setting `cameraOrbit` or `camera_orbit` in posts.json
         // Choose a starting camera orbit. On touch devices / small viewports we
-        // prefer a more top-down starting view (slightly offset on X) so the
-        // model is visible immediately without the user having to rotate.
+        // prefer a near top-down starting view so the model is visible immediately.
+        // Allow per-post overrides: cameraOrbit / camera_orbit (desktop),
+        // cameraOrbitMobile / camera_orbit_mobile (mobile), and cameraTarget / camera_target.
         const isTouchDevice = (typeof window !== 'undefined') && (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0));
-        const mobileDefaultOrbit = '20deg 82deg 0.9m'; // slight X-side offset + nearly top-down
-        const desktopDefaultOrbit = '0deg 75deg 0.8m';
+        // near-top-side: azimuth 0deg, elevation close to 90deg (top-down), radius 1.0m
+        const mobileDefaultOrbit = '200deg 50deg 1.0m';
+        const desktopDefaultOrbit = '200deg 50deg 1.0m';
         const camOrbit = post.cameraOrbit || post.camera_orbit || (isTouchDevice || (typeof window !== 'undefined' && window.innerWidth <= 900) ? (post.cameraOrbitMobile || post.camera_orbit_mobile || mobileDefaultOrbit) : desktopDefaultOrbit);
+        const camTarget = (post.cameraTarget || post.camera_target) || '0m -1m 0m';
         // Add a small min-height to ensure the element doesn't collapse when the
         // containing frame has no explicit height (common on responsive/mobile layouts).
         // Styling and breakpoints are also handled in CSS.
-        return `<model-viewer class="visual-media model-viewer-el" src="${src}" alt="${post.title || ''}" camera-controls auto-rotate exposure="1" interaction-policy="allow" min-field-of-view="2deg" max-field-of-view="75deg" camera-orbit="${camOrbit}" style="min-height:240px; width:100%;"></model-viewer>`;
+        return `<model-viewer class="visual-media model-viewer-el" src="${src}" alt="${post.title || ''}" camera-controls auto-rotate exposure="1" interaction-policy="allow" min-field-of-view="2deg" max-field-of-view="75deg" camera-orbit="${camOrbit}" camera-target="${camTarget}" style="min-height:240px; width:100%;"></model-viewer>`;
       }
       if (t === 'video') return `<video class="visual-media" src="${src}" ${shouldAutoplayVisual ? 'autoplay muted loop playsinline' : ''}></video>`;
       return `<img class="visual-media" src="${src}" alt="">`;
