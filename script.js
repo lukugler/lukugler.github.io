@@ -322,6 +322,8 @@
     const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
 
     // Instantiate a model-viewer element inside the placeholder element
+    // This is defensive: uses try/catch, listens for load/error and uses a timeout
+    // to revert to a safe fallback (download link) if anything goes wrong.
     function instantiateModelViewer(placeholderEl) {
       if (!placeholderEl) return;
       const src = placeholderEl.getAttribute('data-src');
@@ -330,9 +332,20 @@
       const minFov = placeholderEl.getAttribute('data-min-fov') || '2deg';
       const maxFov = placeholderEl.getAttribute('data-max-fov') || '75deg';
 
-      // load script then create element
-      ensureModelViewerScript();
+      // show spinner while attempting
+      const spinner = document.createElement('div');
+      spinner.className = 'model-loading-spinner';
+      // keep placeholder content visible under spinner
+      placeholderEl.appendChild(spinner);
 
+      // load script then create element
+      try {
+        ensureModelViewerScript();
+      } catch (e) {
+        console.warn('Failed to inject model-viewer script', e);
+      }
+
+      // Create element but don't immediately replace; attach handlers
       const mv = document.createElement('model-viewer');
       mv.className = 'visual-media model-viewer-el';
       mv.setAttribute('src', src);
@@ -344,13 +357,63 @@
       mv.setAttribute('min-field-of-view', minFov);
       mv.setAttribute('max-field-of-view', maxFov);
       mv.setAttribute('camera-orbit', camOrbit);
-      // make it fill the frame
       mv.style.width = '100%';
       mv.style.height = '100%';
 
-      // replace placeholder content
+      // Timeout: if viewer doesn't load within X ms, abort and show fallback
+      const LOAD_TIMEOUT = 9000; // 9s
+      let timedOut = false;
+      const to = setTimeout(() => {
+        timedOut = true;
+        console.warn('model-viewer load timeout');
+        showModelFallback(placeholderEl, src, title, 'Loading timed out.');
+      }, LOAD_TIMEOUT);
+
+      // success handler
+      function onLoad() {
+        if (timedOut) return;
+        clearTimeout(to);
+        // replace placeholder content with the model viewer
+        placeholderEl.innerHTML = '';
+        placeholderEl.appendChild(mv);
+      }
+
+      function onError(e) {
+        clearTimeout(to);
+        console.error('model-viewer error', e);
+        showModelFallback(placeholderEl, src, title, 'An error occurred while loading the 3D viewer.');
+      }
+
+      // attach listeners, model-viewer emits 'load' when model is ready
+      mv.addEventListener('load', onLoad);
+      mv.addEventListener('error', onError);
+
+      // try to append; some browsers may throw when creating WebGL contexts
+      try {
+        // Append to DOM to start loading
+        placeholderEl.appendChild(mv);
+      } catch (err) {
+        clearTimeout(to);
+        console.error('Failed to append model-viewer', err);
+        showModelFallback(placeholderEl, src, title, 'Could not initialize 3D viewer on this device.');
+      }
+    }
+
+    function showModelFallback(placeholderEl, src, title, message) {
+      // remove spinner and any existing content then show a safe fallback with download link
       placeholderEl.innerHTML = '';
-      placeholderEl.appendChild(mv);
+      const msg = document.createElement('div');
+      msg.className = 'model-fallback-msg';
+      msg.textContent = message || '3D viewer unavailable.';
+      const dl = document.createElement('a');
+      dl.className = 'model-download-btn';
+      dl.href = src;
+      dl.textContent = 'Download 3D file';
+      dl.setAttribute('download', '');
+      dl.style.display = 'inline-block';
+      dl.style.marginTop = '10px';
+      placeholderEl.appendChild(msg);
+      placeholderEl.appendChild(dl);
     }
 
     const mediaTag = (src, type) => {

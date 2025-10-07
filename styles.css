@@ -208,6 +208,40 @@
   font-weight: 800;
 }
 
+.model-loading-spinner {
+  position: absolute;
+  z-index: 40;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.12);
+  border-top-color: #20A387E6;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.model-fallback-msg {
+  color: #fca5a5;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px 12px;
+}
+
+.model-download-btn {
+  display: inline-block;
+  background: #151515;
+  color: #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  border: 1px solid #2b2b2b;
+}
+
 /* ===== Model viewer styles: keep same responsive rules as images/videos in visual posts ===== */
 .model-viewer-el {
   width: 100%;
