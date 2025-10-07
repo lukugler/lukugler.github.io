@@ -243,9 +243,31 @@
     const shared = `class="visual-post ${layout === 'two' ? 'two' : (layout === 'left' || layout === 'right' ? 'side ' + layout : 'center')}" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
 
     const shouldAutoplayVisual = (post.autoplay === undefined) ? true : Boolean(post.autoplay);
-    const mediaTag = (src, type) => type === 'video'
-      ? `<video class="visual-media" src="${src}" ${shouldAutoplayVisual ? 'autoplay muted loop playsinline' : ''}></video>`
-      : `<img class="visual-media" src="${src}" alt="">`;
+
+    // helper: ensure model-viewer script is loaded once when needed
+    function ensureModelViewerScript() {
+      if (window._modelViewerScriptInjected) return;
+      const s = document.createElement('script');
+      s.type = 'module';
+      s.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js';
+      s.async = true;
+      document.head.appendChild(s);
+      window._modelViewerScriptInjected = true;
+    }
+
+    const mediaTag = (src, type) => {
+      const t = (type || '').toString().toLowerCase();
+      const isModel = t === 'model' || (typeof src === 'string' && src.toLowerCase().endsWith('.glb'));
+      if (isModel) {
+        ensureModelViewerScript();
+        // Allow stronger zoom by decreasing the minimum field-of-view (smaller fov == closer zoom)
+        // and set a reasonable maximum to avoid extreme fisheye.
+        // Lowered min-field-of-view to 2deg for an even closer zoom.
+        return `<model-viewer class="visual-media model-viewer-el" src="${src}" alt="${post.title || ''}" camera-controls auto-rotate exposure="1" interaction-policy="allow" min-field-of-view="2deg" max-field-of-view="75deg"></model-viewer>`;
+      }
+      if (t === 'video') return `<video class="visual-media" src="${src}" ${shouldAutoplayVisual ? 'autoplay muted loop playsinline' : ''}></video>`;
+      return `<img class="visual-media" src="${src}" alt="">`;
+    };
 
     let inner = '';
     if (layout === 'two') {
@@ -260,8 +282,21 @@
         <div class="vp-media-wrap"><div class="vp-media-frame">${mediaTag(post.media, post.mediaType)}</div></div>
         <div class="visual-caption">${post.caption || ''}</div>`;
     } else {
+      // center layout: allow per-post explicit sizing similar to compare posts
+      let frameStyle = '';
+      if (post.mediaBoxW || post.mediaBoxH) {
+        frameStyle = 'style="';
+        frameStyle += `width: ${px(post.mediaBoxW, '100%')};`;
+        if (post.mediaBoxW && post.mediaBoxH && typeof post.mediaBoxW === 'number' && typeof post.mediaBoxH === 'number') {
+          frameStyle += ` aspect-ratio: ${post.mediaBoxW} / ${post.mediaBoxH};`;
+        } else {
+          frameStyle += ` height: ${px(post.mediaBoxH, 'auto')};`;
+        }
+        frameStyle += '"';
+      }
+
       inner = `
-        <div class="vp-media-wrap"><div class="vp-media-frame">${mediaTag(post.media, post.mediaType)}</div></div>
+        <div class="vp-media-wrap"><div class="vp-media-frame" ${frameStyle}>${mediaTag(post.media, post.mediaType)}</div></div>
         <div class="visual-caption">${post.caption || ''}</div>`;
     }
 
@@ -279,12 +314,31 @@
     const height = post.height || 420;
     const shared = `class="visual-post compare center" style="--post-height:${height}px; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
 
+    // Create img tags; we'll also set an inline style on the vp-media-frame to
+    // ensure the compare wrapper measures at the intended pixel dimensions
+    // (important when source images are very large).
     const beforeTag = `<img class="content-image" src="${post.media}" draggable="false" alt="before">`;
     const afterTag = `<img class="content-image" src="${post.media2}" draggable="false" alt="after">`;
 
+    // Inline style for explicit frame sizing so the compare area matches the
+    // post-specified media box. px() already appends 'px' when numeric.
+    // If both width and height are numeric we also emit an aspect-ratio so
+    // the element can scale proportionally when the viewport is narrower than
+    // the requested pixel width (important for phone usage).
+    let frameStyle = `style="width: ${px(post.mediaBoxW, '100%')};`;
+    if (post.mediaBoxW && post.mediaBoxH && typeof post.mediaBoxW === 'number' && typeof post.mediaBoxH === 'number') {
+      // aspect-ratio takes the form 'width / height' and allows the browser to
+      // compute height when width is constrained (e.g., max-width:100%).
+      frameStyle += ` aspect-ratio: ${post.mediaBoxW} / ${post.mediaBoxH};`;
+    } else {
+      // If exact height is provided but not both numbers, set height as a fallback
+      frameStyle += ` height: ${px(post.mediaBoxH, 'auto')};`;
+    }
+    frameStyle += '"';
+
     const inner = `
       <div class="vp-media-wrap">
-        <div class="vp-media-frame">
+        <div class="vp-media-frame" ${frameStyle}>
           <div class="compare-wrapper">
             <div class="before">${beforeTag}</div>
             <div class="after">${afterTag}</div>

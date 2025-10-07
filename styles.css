@@ -27,11 +27,14 @@
 .compare .before .content-image,
 .compare .after .content-image {
   position: absolute;
+  /* Keep images anchored to the top-left and sized to the frame. The JS
+     code locks image pixel width/height while dragging, so using top:0
+     left:0 prevents visual shifting. object-position is handled in JS. */
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
   user-select: none;
   -webkit-user-drag: none;
@@ -147,16 +150,45 @@
    they scale with width instead of disappearing on phones. */
 .visual-post.compare .vp-media-frame,
 .compare .vp-media-frame {
-  /* prefer a 16:9 display but allow per-post override via --vbox-w / --vbox-h */
-  aspect-ratio: 16 / 9;
-  /* honor post-specified box size, but never exceed the container */
+  /* Honor explicit per-post box sizing via --vbox-w / --vbox-h. When both
+    width and height are numeric the JS will emit an inline aspect-ratio so
+    the frame can scale proportionally when constrained by the viewport.
+    Otherwise the browser will fall back to an explicit height if provided. */
   width: var(--vbox-w, 100%);
   max-width: 100%;
-  /* allow explicit height from post, otherwise fall back to auto (keeps aspect-ratio) */
-  height: var(--vbox-h, auto) !important;
-  min-height: 120px;
+  /* Let the browser derive height from aspect-ratio when present; otherwise
+    fall back to auto and respect any explicit height set on the element. */
+  height: auto !important;
+  min-height: 80px;
   max-height: 85vh;
   overflow: hidden;
+}
+
+/* ===== Model viewer styles: keep same responsive rules as images/videos in visual posts ===== */
+.model-viewer-el {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  /* model-viewer respects width/height */
+  background: var(--bg-color, transparent);
+}
+
+/* Ensure model-viewer inside vp-media-frame behaves like other media
+   and respects per-post aspect-ratio and the non-cropping mobile rules. */
+.vp-media-frame .model-viewer-el {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+}
+
+@media (max-width: 900px) {
+  .vp-media-frame .model-viewer-el {
+    width: var(--vbox-w, 100%) !important;
+    height: var(--vbox-h, auto) !important;
+    object-fit: contain !important;
+  }
 }
 
 /* Full corrected stylesheet — no // comments, balanced braces, includes fixes for 'two' captions and iframe touch handling. */
@@ -202,7 +234,7 @@ body {
 
 .hero {
   width: 100%;
-  height: 454px;
+  height: 750px;
   background: #0f0f0f;
   overflow: hidden;
 }

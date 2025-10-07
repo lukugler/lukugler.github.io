@@ -7,11 +7,23 @@
     "mediaType": "image",
     "media2Type": "image",
     "caption": "Grey Glacier (Patagonia) comparison: 1980 vs 2022.",
-    "height": 700,
+    "height": 800,
     "mediaScale": 1.0,
-    "mediaBoxW": 700,
-    "mediaBoxH": 700,
+    "mediaBoxW": 600,
+    "mediaBoxH": 600,
     "subtype": "compare"
+  },
+  {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/model.glb",
+    "mediaType": "model",
+    "caption": "Interactive 3D model viewer (GLB). Use mouse/touch to rotate and pinch to zoom.",
+    "height": 520,
+    "mediaScale": 1.0,
+    "mediaBoxW": 800,
+    "mediaBoxH": 520,
+    "subtype": "model"
   },
   {
     "title": "Advances in Historical Aerial Image Analysis: Boosting SfM Pipelines with Learned Models",
@@ -96,10 +108,10 @@
     "media": "assets/post_3_dd_1975.png",
     "mediaType": "image",
     "caption": "CORONA Imagery over Dresden 1975.",
-    "height": 300,
+    "height": 380,
     "mediaScale": 1,
-    "mediaBoxW": 1200,
-    "mediaBoxH": 300
+    "mediaBoxW": 1100,
+    "mediaBoxH": 380
   },
   {
     "title": "Telegram Network Analysis of the Saxon right-wing party Free Saxony",
@@ -110,7 +122,7 @@
     "href": "articles/network_anlysis.md",
     "height": 600,
     "layout": "media-left",
-    "mediaBoxW": 600,
+    "mediaBoxW": 1100,
     "mediaBoxH": 600,
     "mobileMaxVH": 50
   }
