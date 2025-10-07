@@ -232,6 +232,19 @@
     const node = wrap.firstElementChild;
     postsEl.appendChild(node);
     revealOnIntersect(node);
+
+    // If there are any model placeholders (mobile), wire up the load button
+    // Use event delegation for safety.
+    postsEl.addEventListener('click', function (e) {
+      const btn = e.target.closest && e.target.closest('.model-load-btn');
+      if (!btn) return;
+      const placeholder = btn.closest('.model-placeholder');
+      if (!placeholder) return;
+      // instantiate model-viewer inside placeholder
+      instantiateModelViewer(placeholder);
+      // remove the button after loading
+      try { btn.remove(); } catch (err) { }
+    });
   }
 
   function makeVisual(post) {
@@ -255,15 +268,59 @@
       window._modelViewerScriptInjected = true;
     }
 
+    // Utility: detect mobile/iOS to avoid auto-instantiating heavy WebGL on phones
+    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+    // Instantiate a model-viewer element inside the placeholder element
+    function instantiateModelViewer(placeholderEl) {
+      if (!placeholderEl) return;
+      const src = placeholderEl.getAttribute('data-src');
+      const title = placeholderEl.getAttribute('data-title') || '';
+      const camOrbit = placeholderEl.getAttribute('data-camera-orbit') || '0deg 75deg 0.8m';
+      const minFov = placeholderEl.getAttribute('data-min-fov') || '2deg';
+      const maxFov = placeholderEl.getAttribute('data-max-fov') || '75deg';
+
+      // load script then create element
+      ensureModelViewerScript();
+
+      const mv = document.createElement('model-viewer');
+      mv.className = 'visual-media model-viewer-el';
+      mv.setAttribute('src', src);
+      mv.setAttribute('alt', title);
+      mv.setAttribute('camera-controls', '');
+      mv.setAttribute('auto-rotate', '');
+      mv.setAttribute('exposure', '1');
+      mv.setAttribute('interaction-policy', 'allow');
+      mv.setAttribute('min-field-of-view', minFov);
+      mv.setAttribute('max-field-of-view', maxFov);
+      mv.setAttribute('camera-orbit', camOrbit);
+      // make it fill the frame
+      mv.style.width = '100%';
+      mv.style.height = '100%';
+
+      // replace placeholder content
+      placeholderEl.innerHTML = '';
+      placeholderEl.appendChild(mv);
+    }
+
     const mediaTag = (src, type) => {
       const t = (type || '').toString().toLowerCase();
       const isModel = t === 'model' || (typeof src === 'string' && src.toLowerCase().endsWith('.glb'));
       if (isModel) {
+        // On mobile devices (iPhone/iPad) we shouldn't auto-instantiate heavy WebGL
+        // because it can cause crashes / automatic reloads. Instead render a lightweight
+        // placeholder with a "Load 3D" button — the model-viewer is created only when
+        // the user explicitly requests it.
+        const camOrbit = post.cameraOrbit || post.camera_orbit || '0deg 75deg 0.8m';
+        const minFov = post.minFov || post.minFov || '2deg';
+        const maxFov = post.maxFov || post.maxFov || '75deg';
+        if (isMobile) {
+          const posterAttr = post.poster ? `data-poster="${post.poster}"` : '';
+          return `<div class="model-placeholder" data-src="${src}" data-title="${(post.title || '')}" data-camera-orbit="${camOrbit}" data-min-fov="${minFov}" data-max-fov="${maxFov}">${post.poster ? `<img src="${post.poster}" alt="${post.title || ''}">` : '<div class="model-placeholder-cover">3D model</div>'}<button class="model-load-btn">Load 3D</button></div>`;
+        }
+        // Desktop: instantiate immediately
         ensureModelViewerScript();
-        // Allow stronger zoom by decreasing the minimum field-of-view (smaller fov == closer zoom)
-        // and set a reasonable maximum to avoid extreme fisheye.
-        // Lowered min-field-of-view to 2deg for an even closer zoom.
-        return `<model-viewer class="visual-media model-viewer-el" src="${src}" alt="${post.title || ''}" camera-controls auto-rotate exposure="1" interaction-policy="allow" min-field-of-view="2deg" max-field-of-view="75deg"></model-viewer>`;
+        return `<model-viewer class="visual-media model-viewer-el" src="${src}" alt="${post.title || ''}" camera-controls auto-rotate exposure="1" interaction-policy="allow" min-field-of-view="2deg" max-field-of-view="75deg" camera-orbit="${camOrbit}"></model-viewer>`;
       }
       if (t === 'video') return `<video class="visual-media" src="${src}" ${shouldAutoplayVisual ? 'autoplay muted loop playsinline' : ''}></video>`;
       return `<img class="visual-media" src="${src}" alt="">`;
