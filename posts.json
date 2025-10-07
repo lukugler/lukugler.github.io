@@ -19,10 +19,10 @@
     "media": "assets/model.glb",
     "mediaType": "model",
     "caption": "Interactive 3D model viewer (GLB). Use mouse/touch to rotate and pinch to zoom.",
-    "height": 520,
+    "height": 550,
     "mediaScale": 1.0,
-    "mediaBoxW": 800,
-    "mediaBoxH": 520,
+    "mediaBoxW": 1100,
+    "mediaBoxH": 550,
     "subtype": "model"
   },
   {

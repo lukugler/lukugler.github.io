@@ -164,84 +164,6 @@
   overflow: hidden;
 }
 
-/* Placeholder for lazy-loading 3D models on mobile to avoid iOS reloads */
-.model-placeholder {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  background: #0f0f0f;
-  color: #e5e7eb;
-  overflow: hidden;
-}
-
-.model-placeholder img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.model-placeholder .model-placeholder-cover {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  font-style: italic;
-  color: #cbd5e1;
-}
-
-.model-load-btn {
-  position: absolute;
-  z-index: 30;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: #20A387E6;
-  color: black;
-  border: none;
-  font-weight: 800;
-}
-
-.model-loading-spinner {
-  position: absolute;
-  z-index: 40;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.12);
-  border-top-color: #20A387E6;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.model-fallback-msg {
-  color: #fca5a5;
-  font-weight: 700;
-  text-align: center;
-  padding: 8px 12px;
-}
-
-.model-download-btn {
-  display: inline-block;
-  background: #151515;
-  color: #e5e7eb;
-  padding: 8px 12px;
-  border-radius: 8px;
-  text-decoration: none;
-  border: 1px solid #2b2b2b;
-}
-
 /* ===== Model viewer styles: keep same responsive rules as images/videos in visual posts ===== */
 .model-viewer-el {
   width: 100%;
@@ -266,6 +188,13 @@
     width: var(--vbox-w, 100%) !important;
     height: var(--vbox-h, auto) !important;
     object-fit: contain !important;
+  }
+
+  /* Ensure model viewer has a usable height on phones even when
+     the surrounding frame didn't specify an explicit height. */
+  .model-viewer-el {
+    min-height: 220px;
+    max-height: 85vh;
   }
 }
 
@@ -655,6 +584,43 @@ body {
   font-style: italic;
   margin-top: var(--caption-gap-two);
   text-align: center;
+}
+
+/* Tighten spacing for compare posts on small viewports so captions sit
+   closer to the media instead of being pushed down by a large --post-height */
+@media (max-width: 900px) {
+
+  .visual-post.compare,
+  .visual-post.compare.center {
+    /* let the post size to its content on small screens */
+    height: auto !important;
+    padding-bottom: 6px !important;
+  }
+
+  .visual-post.center {
+    /* Use auto rows so the media shrinks to fit and caption follows closely */
+    grid-template-rows: auto auto;
+  }
+
+  .visual-post.compare .vp-media-wrap {
+    /* align media to the top of the area so caption is directly below */
+    align-items: flex-start;
+    padding: 0 8px;
+    /* allow the wrapper itself to shrink rather than stretching to the --post-height */
+    height: auto !important;
+  }
+
+  .visual-post.compare .vp-media-frame {
+    /* allow the compare frame to shrink naturally */
+    height: auto !important;
+    max-height: none;
+  }
+
+  .visual-post.compare .visual-caption,
+  .compare .visual-caption {
+    margin-top: 6px !important;
+    padding: 6px 12px !important;
+  }
 }
 
 /* About */

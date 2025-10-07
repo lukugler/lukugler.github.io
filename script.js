@@ -4,6 +4,188 @@
 (function () {
   const postsEl = document.querySelector('.posts');
 
+  // --- Reload watchdog (diagnostic) -------------------------------------------------
+  // Track recent page load timestamps in sessionStorage. If the page reloads
+  // rapidly (e.g., >6 times within 10s) we mark the session and show a small
+  // overlay to help debug on-device. This also allows us to avoid injecting
+  // external scripts that might be triggering loops while the user inspects.
+  (function reloadWatchdog() {
+    try {
+      const KEY = '__md_reload_times_v1';
+      const PROTECT = '__md_reload_protect_v1';
+      const now = Date.now();
+      const raw = sessionStorage.getItem(KEY) || '[]';
+      const arr = JSON.parse(raw);
+      arr.push(now);
+      // keep only last 10s of timestamps
+      while (arr.length && now - arr[0] > 10000) arr.shift();
+      sessionStorage.setItem(KEY, JSON.stringify(arr));
+      if (arr.length > 6) {
+        sessionStorage.setItem(PROTECT, '1');
+        console.warn('Reload watchdog: detected rapid reloads, pausing risky injections.', arr.length);
+      }
+
+      if (sessionStorage.getItem(PROTECT)) {
+        // show unobtrusive overlay so user knows something's up
+        const id = 'md-reload-watchdog-overlay';
+        if (!document.getElementById(id)) {
+          const ov = document.createElement('div');
+          ov.id = id;
+          ov.style.cssText = 'position:fixed;left:8px;right:8px;bottom:12px;padding:10px 12px;background:rgba(220,38,38,0.92);color:#fff;font-weight:600;border-radius:8px;z-index:99999;font-size:13px;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,0.45);';
+          ov.innerHTML = 'Reload watchdog: rapid reloads detected — external viewer scripts are paused. Reloads in last 10s: ' + arr.length + '. Refresh to clear.';
+          document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(ov); });
+          // also append immediately if body already exists
+          if (document.body) document.body.appendChild(ov);
+        }
+      }
+    } catch (e) {
+      /* ignore watchdog errors */
+    }
+  })();
+
+  // --- Diagnostics: log navigation type, errors, and intercept reload calls ---
+  (function diagnostics() {
+    try {
+      const DKEY = '__md_diag_v1';
+      const push = (obj) => {
+        try {
+          const raw = sessionStorage.getItem(DKEY) || '[]';
+          const arr = JSON.parse(raw);
+          arr.push(obj);
+          // keep small
+          while (arr.length > 200) arr.shift();
+          sessionStorage.setItem(DKEY, JSON.stringify(arr));
+        } catch (e) { /* ignore */ }
+      };
+
+      // record navigation type
+      try {
+        const navEntry = (performance.getEntriesByType && performance.getEntriesByType('navigation') && performance.getEntriesByType('navigation')[0]) || null;
+        const navType = navEntry ? (navEntry.type || 'unknown') : (performance.navigation && performance.navigation.type) || 'unknown';
+        push({ t: Date.now(), event: 'page-load', navType });
+      } catch (e) { push({ t: Date.now(), event: 'page-load', err: String(e) }); }
+
+      // monkeypatch location.reload to log stack traces
+      try {
+        if (!window._md_orig_reload) {
+          window._md_orig_reload = window.location.reload.bind(window.location);
+          window.location.reload = function () {
+            push({ t: Date.now(), event: 'location.reload', stack: (new Error()).stack });
+            return window._md_orig_reload();
+          };
+        }
+      } catch (e) { push({ t: Date.now(), event: 'reload-patch-failed', err: String(e) }); }
+
+      window.addEventListener('error', function (ev) {
+        push({ t: Date.now(), event: 'error', message: ev.message, filename: ev.filename, lineno: ev.lineno, colno: ev.colno });
+      });
+      window.addEventListener('unhandledrejection', function (ev) {
+        try { push({ t: Date.now(), event: 'unhandledrejection', reason: String(ev.reason) }); } catch (e) { }
+      });
+
+      // beforeunload usually indicates a navigation or hard reload
+      window.addEventListener('beforeunload', function () { push({ t: Date.now(), event: 'beforeunload' }); });
+    } catch (e) { /* silent */ }
+  })();
+
+  // --- Global helper: allow manual injection of model-viewer scripts from the console/UI ---
+  window._md_injectModelViewerScripts = function () {
+    try {
+      if (window._modelViewerScriptInjected) return true;
+      const mod = document.createElement('script');
+      mod.type = 'module';
+      mod.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js';
+      mod.async = true;
+      document.head.appendChild(mod);
+
+      const legacy = document.createElement('script');
+      legacy.setAttribute('nomodule', '');
+      legacy.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js';
+      legacy.async = true;
+      document.head.appendChild(legacy);
+
+      window._modelViewerScriptInjected = true;
+      console.log('model-viewer scripts injected (manual)');
+      return true;
+    } catch (e) {
+      console.error('injectModelViewerScripts failed', e);
+      return false;
+    }
+  };
+
+  // --- Debug panel for watchdog/diagnostics (visible when protection active or ?md-debug) ---
+  (function debugPanel() {
+    try {
+      const PROTECT = '__md_reload_protect_v1';
+      const KEY = '__md_reload_times_v1';
+      const DKEY = '__md_diag_v1';
+      const showAlways = location.search.indexOf('md-debug') !== -1 || location.search.indexOf('md-debug=1') !== -1;
+      const isProtected = (() => { try { return !!sessionStorage.getItem(PROTECT); } catch (e) { return false; } })();
+      if (!showAlways && !isProtected) return;
+
+      function render() {
+        const times = (() => { try { return JSON.parse(sessionStorage.getItem(KEY) || '[]'); } catch (e) { return []; } })();
+        const diags = (() => { try { return JSON.parse(sessionStorage.getItem(DKEY) || '[]'); } catch (e) { return []; } })();
+        return { times, diags, protected: isProtected };
+      }
+
+      function createPanel() {
+        const root = document.createElement('div');
+        root.id = 'md-debug-panel';
+        root.style.cssText = 'position:fixed;left:10px;bottom:10px;width:320px;max-width:calc(100% - 20px);background:rgba(17,24,39,0.96);color:#fff;padding:12px;border-radius:10px;z-index:999999;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,0.5);';
+        const title = document.createElement('div');
+        title.textContent = 'Debug: reload watchdog';
+        title.style.cssText = 'font-weight:700;margin-bottom:8px;';
+        root.appendChild(title);
+
+        const content = document.createElement('pre');
+        const data = render();
+        content.textContent = JSON.stringify(data, null, 2);
+        content.style.cssText = 'max-height:240px;overflow:auto;background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;margin-bottom:8px;';
+        root.appendChild(content);
+
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:8px;justify-content:space-between';
+
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = 'Clear protection';
+        clearBtn.style.cssText = 'flex:1;background:#10b981;border:0;padding:8px;border-radius:6px;color:#042';
+        clearBtn.onclick = function () {
+          try { sessionStorage.removeItem(PROTECT); sessionStorage.removeItem(KEY); sessionStorage.removeItem(DKEY); } catch (e) { }
+          location.reload();
+        };
+        btnRow.appendChild(clearBtn);
+
+        const injectBtn = document.createElement('button');
+        injectBtn.textContent = 'Force inject';
+        injectBtn.style.cssText = 'flex:1;background:#3b82f6;border:0;padding:8px;border-radius:6px;color:#fff;';
+        injectBtn.onclick = function () {
+          try { sessionStorage.removeItem(PROTECT); } catch (e) { }
+          const ok = window._md_injectModelViewerScripts();
+          injectBtn.textContent = ok ? 'Injected' : 'Failed';
+        };
+        btnRow.appendChild(injectBtn);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = 'Close';
+        closeBtn.style.cssText = 'flex:1;background:#374151;border:0;padding:8px;border-radius:6px;color:#fff;';
+        closeBtn.onclick = function () { root.remove(); };
+        btnRow.appendChild(closeBtn);
+
+        root.appendChild(btnRow);
+
+        return root;
+      }
+
+      function attach() {
+        const panel = createPanel();
+        if (document.body) document.body.appendChild(panel); else document.addEventListener('DOMContentLoaded', () => document.body.appendChild(panel));
+      }
+
+      attach();
+    } catch (e) { /* ignore debug panel errors */ }
+  })();
+
   // Determine background color from the posts container (preferred) or body
   const getBG = () => {
     const srcEl = postsEl || document.body;
@@ -181,67 +363,6 @@
     return (typeof val === 'number') ? `${val}px` : String(val).match(/px|%|vh|vw$/) ? String(val) : `${val}px`;
   }
 
-  // --- Model viewer helpers (global scope) ---
-  // helper: ensure model-viewer script is loaded once when needed
-  function ensureModelViewerScript() {
-    if (window._modelViewerScriptInjected) return;
-    const s = document.createElement('script');
-    s.type = 'module';
-    s.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js';
-    s.async = true;
-    document.head.appendChild(s);
-    window._modelViewerScriptInjected = true;
-  }
-
-  // Utility: detect mobile/iOS to avoid auto-instantiating heavy WebGL on phones
-  const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
-
-  // Instantiate a model-viewer element inside the placeholder element
-  function instantiateModelViewer(placeholderEl) {
-    if (!placeholderEl) return;
-    const src = placeholderEl.getAttribute('data-src');
-    const title = placeholderEl.getAttribute('data-title') || '';
-    const camOrbit = placeholderEl.getAttribute('data-camera-orbit') || '0deg 75deg 0.8m';
-    const minFov = placeholderEl.getAttribute('data-min-fov') || '2deg';
-    const maxFov = placeholderEl.getAttribute('data-max-fov') || '75deg';
-
-    // load script then create element
-    ensureModelViewerScript();
-
-    const mv = document.createElement('model-viewer');
-    mv.className = 'visual-media model-viewer-el';
-    mv.setAttribute('src', src);
-    mv.setAttribute('alt', title);
-    mv.setAttribute('camera-controls', '');
-    mv.setAttribute('auto-rotate', '');
-    mv.setAttribute('exposure', '1');
-    mv.setAttribute('interaction-policy', 'allow');
-    mv.setAttribute('min-field-of-view', minFov);
-    mv.setAttribute('max-field-of-view', maxFov);
-    mv.setAttribute('camera-orbit', camOrbit);
-    // make it fill the frame
-    mv.style.width = '100%';
-    mv.style.height = '100%';
-
-    // replace placeholder content
-    placeholderEl.innerHTML = '';
-    placeholderEl.appendChild(mv);
-  }
-
-  // Wire up one delegated click listener for model placeholders
-  if (postsEl) {
-    postsEl.addEventListener('click', function (e) {
-      const btn = e.target.closest && e.target.closest('.model-load-btn');
-      if (!btn) return;
-      const placeholder = btn.closest('.model-placeholder');
-      if (!placeholder) return;
-      // instantiate model-viewer inside placeholder
-      instantiateModelViewer(placeholder);
-      // remove the button after loading
-      try { btn.remove(); } catch (err) { }
-    });
-  }
-
   function makeArticleCard(post) {
     const postsEl = document.querySelector('.posts');
     const aHref = (post.href && post.href.endsWith('.md'))
@@ -293,8 +414,6 @@
     const node = wrap.firstElementChild;
     postsEl.appendChild(node);
     revealOnIntersect(node);
-
-    // ...existing code...
   }
 
   function makeVisual(post) {
@@ -309,131 +428,51 @@
 
     // helper: ensure model-viewer script is loaded once when needed
     function ensureModelViewerScript() {
+      // If reload watchdog flagged rapid reloads, avoid injecting external
+      // scripts which could be triggering navigation loops.
+      try {
+        if (sessionStorage.getItem('__md_reload_protect_v1')) {
+          console.warn('ensureModelViewerScript: aborted due to reload watchdog protection');
+          return;
+        }
+      } catch (e) { /* ignore */ }
+
+      // Inject both module and legacy (nomodule) builds so older mobile
+      // browsers that don't support ES modules can still use model-viewer.
       if (window._modelViewerScriptInjected) return;
-      const s = document.createElement('script');
-      s.type = 'module';
-      s.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js';
-      s.async = true;
-      document.head.appendChild(s);
+
+      // Modern (module) build
+      const mod = document.createElement('script');
+      mod.type = 'module';
+      mod.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js';
+      mod.async = true;
+      document.head.appendChild(mod);
+
+      // Legacy (nomodule) build - fallback for older browsers (iOS Safari < 12.2 / older Android)
+      const legacy = document.createElement('script');
+      legacy.setAttribute('nomodule', '');
+      legacy.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js';
+      legacy.async = true;
+      document.head.appendChild(legacy);
+
       window._modelViewerScriptInjected = true;
-    }
-
-    // Utility: detect mobile/iOS to avoid auto-instantiating heavy WebGL on phones
-    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
-
-    // Instantiate a model-viewer element inside the placeholder element
-    // This is defensive: uses try/catch, listens for load/error and uses a timeout
-    // to revert to a safe fallback (download link) if anything goes wrong.
-    function instantiateModelViewer(placeholderEl) {
-      if (!placeholderEl) return;
-      const src = placeholderEl.getAttribute('data-src');
-      const title = placeholderEl.getAttribute('data-title') || '';
-      const camOrbit = placeholderEl.getAttribute('data-camera-orbit') || '0deg 75deg 0.8m';
-      const minFov = placeholderEl.getAttribute('data-min-fov') || '2deg';
-      const maxFov = placeholderEl.getAttribute('data-max-fov') || '75deg';
-
-      // show spinner while attempting
-      const spinner = document.createElement('div');
-      spinner.className = 'model-loading-spinner';
-      // keep placeholder content visible under spinner
-      placeholderEl.appendChild(spinner);
-
-      // load script then create element
-      try {
-        ensureModelViewerScript();
-      } catch (e) {
-        console.warn('Failed to inject model-viewer script', e);
-      }
-
-      // Create element but don't immediately replace; attach handlers
-      const mv = document.createElement('model-viewer');
-      mv.className = 'visual-media model-viewer-el';
-      mv.setAttribute('src', src);
-      mv.setAttribute('alt', title);
-      mv.setAttribute('camera-controls', '');
-      mv.setAttribute('auto-rotate', '');
-      mv.setAttribute('exposure', '1');
-      mv.setAttribute('interaction-policy', 'allow');
-      mv.setAttribute('min-field-of-view', minFov);
-      mv.setAttribute('max-field-of-view', maxFov);
-      mv.setAttribute('camera-orbit', camOrbit);
-      mv.style.width = '100%';
-      mv.style.height = '100%';
-
-      // Timeout: if viewer doesn't load within X ms, abort and show fallback
-      const LOAD_TIMEOUT = 9000; // 9s
-      let timedOut = false;
-      const to = setTimeout(() => {
-        timedOut = true;
-        console.warn('model-viewer load timeout');
-        showModelFallback(placeholderEl, src, title, 'Loading timed out.');
-      }, LOAD_TIMEOUT);
-
-      // success handler
-      function onLoad() {
-        if (timedOut) return;
-        clearTimeout(to);
-        // replace placeholder content with the model viewer
-        placeholderEl.innerHTML = '';
-        placeholderEl.appendChild(mv);
-      }
-
-      function onError(e) {
-        clearTimeout(to);
-        console.error('model-viewer error', e);
-        showModelFallback(placeholderEl, src, title, 'An error occurred while loading the 3D viewer.');
-      }
-
-      // attach listeners, model-viewer emits 'load' when model is ready
-      mv.addEventListener('load', onLoad);
-      mv.addEventListener('error', onError);
-
-      // try to append; some browsers may throw when creating WebGL contexts
-      try {
-        // Append to DOM to start loading
-        placeholderEl.appendChild(mv);
-      } catch (err) {
-        clearTimeout(to);
-        console.error('Failed to append model-viewer', err);
-        showModelFallback(placeholderEl, src, title, 'Could not initialize 3D viewer on this device.');
-      }
-    }
-
-    function showModelFallback(placeholderEl, src, title, message) {
-      // remove spinner and any existing content then show a safe fallback with download link
-      placeholderEl.innerHTML = '';
-      const msg = document.createElement('div');
-      msg.className = 'model-fallback-msg';
-      msg.textContent = message || '3D viewer unavailable.';
-      const dl = document.createElement('a');
-      dl.className = 'model-download-btn';
-      dl.href = src;
-      dl.textContent = 'Download 3D file';
-      dl.setAttribute('download', '');
-      dl.style.display = 'inline-block';
-      dl.style.marginTop = '10px';
-      placeholderEl.appendChild(msg);
-      placeholderEl.appendChild(dl);
     }
 
     const mediaTag = (src, type) => {
       const t = (type || '').toString().toLowerCase();
       const isModel = t === 'model' || (typeof src === 'string' && src.toLowerCase().endsWith('.glb'));
       if (isModel) {
-        // On mobile devices (iPhone/iPad) we shouldn't auto-instantiate heavy WebGL
-        // because it can cause crashes / automatic reloads. Instead render a lightweight
-        // placeholder with a "Load 3D" button — the model-viewer is created only when
-        // the user explicitly requests it.
-        const camOrbit = post.cameraOrbit || post.camera_orbit || '0deg 75deg 0.8m';
-        const minFov = post.minFov || post.minFov || '2deg';
-        const maxFov = post.maxFov || post.maxFov || '75deg';
-        if (isMobile) {
-          const posterAttr = post.poster ? `data-poster="${post.poster}"` : '';
-          return `<div class="model-placeholder" data-src="${src}" data-title="${(post.title || '')}" data-camera-orbit="${camOrbit}" data-min-fov="${minFov}" data-max-fov="${maxFov}">${post.poster ? `<img src="${post.poster}" alt="${post.title || ''}">` : '<div class="model-placeholder-cover">3D model</div>'}<button class="model-load-btn">Load 3D</button></div>`;
-        }
-        // Desktop: instantiate immediately
         ensureModelViewerScript();
-        return `<model-viewer class="visual-media model-viewer-el" src="${src}" alt="${post.title || ''}" camera-controls auto-rotate exposure="1" interaction-policy="allow" min-field-of-view="2deg" max-field-of-view="75deg" camera-orbit="${camOrbit}"></model-viewer>`;
+        // Allow stronger zoom by decreasing the minimum field-of-view (smaller fov == closer zoom)
+        // and set a reasonable maximum to avoid extreme fisheye.
+        // Lowered min-field-of-view to 2deg for an even closer zoom.
+        // Default camera-orbit is set closer (smaller radius) so the model appears zoomed-in.
+        // You can override per-post by setting `cameraOrbit` or `camera_orbit` in posts.json
+        const camOrbit = post.cameraOrbit || post.camera_orbit || '0deg 75deg 0.8m';
+        // Add a small min-height to ensure the element doesn't collapse when the
+        // containing frame has no explicit height (common on responsive/mobile layouts).
+        // Styling and breakpoints are also handled in CSS.
+        return `<model-viewer class="visual-media model-viewer-el" src="${src}" alt="${post.title || ''}" camera-controls auto-rotate exposure="1" interaction-policy="allow" min-field-of-view="2deg" max-field-of-view="75deg" camera-orbit="${camOrbit}" style="min-height:240px; width:100%;"></model-viewer>`;
       }
       if (t === 'video') return `<video class="visual-media" src="${src}" ${shouldAutoplayVisual ? 'autoplay muted loop playsinline' : ''}></video>`;
       return `<img class="visual-media" src="${src}" alt="">`;
