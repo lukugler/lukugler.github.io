@@ -181,6 +181,67 @@
     return (typeof val === 'number') ? `${val}px` : String(val).match(/px|%|vh|vw$/) ? String(val) : `${val}px`;
   }
 
+  // --- Model viewer helpers (global scope) ---
+  // helper: ensure model-viewer script is loaded once when needed
+  function ensureModelViewerScript() {
+    if (window._modelViewerScriptInjected) return;
+    const s = document.createElement('script');
+    s.type = 'module';
+    s.src = 'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js';
+    s.async = true;
+    document.head.appendChild(s);
+    window._modelViewerScriptInjected = true;
+  }
+
+  // Utility: detect mobile/iOS to avoid auto-instantiating heavy WebGL on phones
+  const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+  // Instantiate a model-viewer element inside the placeholder element
+  function instantiateModelViewer(placeholderEl) {
+    if (!placeholderEl) return;
+    const src = placeholderEl.getAttribute('data-src');
+    const title = placeholderEl.getAttribute('data-title') || '';
+    const camOrbit = placeholderEl.getAttribute('data-camera-orbit') || '0deg 75deg 0.8m';
+    const minFov = placeholderEl.getAttribute('data-min-fov') || '2deg';
+    const maxFov = placeholderEl.getAttribute('data-max-fov') || '75deg';
+
+    // load script then create element
+    ensureModelViewerScript();
+
+    const mv = document.createElement('model-viewer');
+    mv.className = 'visual-media model-viewer-el';
+    mv.setAttribute('src', src);
+    mv.setAttribute('alt', title);
+    mv.setAttribute('camera-controls', '');
+    mv.setAttribute('auto-rotate', '');
+    mv.setAttribute('exposure', '1');
+    mv.setAttribute('interaction-policy', 'allow');
+    mv.setAttribute('min-field-of-view', minFov);
+    mv.setAttribute('max-field-of-view', maxFov);
+    mv.setAttribute('camera-orbit', camOrbit);
+    // make it fill the frame
+    mv.style.width = '100%';
+    mv.style.height = '100%';
+
+    // replace placeholder content
+    placeholderEl.innerHTML = '';
+    placeholderEl.appendChild(mv);
+  }
+
+  // Wire up one delegated click listener for model placeholders
+  if (postsEl) {
+    postsEl.addEventListener('click', function (e) {
+      const btn = e.target.closest && e.target.closest('.model-load-btn');
+      if (!btn) return;
+      const placeholder = btn.closest('.model-placeholder');
+      if (!placeholder) return;
+      // instantiate model-viewer inside placeholder
+      instantiateModelViewer(placeholder);
+      // remove the button after loading
+      try { btn.remove(); } catch (err) { }
+    });
+  }
+
   function makeArticleCard(post) {
     const postsEl = document.querySelector('.posts');
     const aHref = (post.href && post.href.endsWith('.md'))
@@ -233,18 +294,7 @@
     postsEl.appendChild(node);
     revealOnIntersect(node);
 
-    // If there are any model placeholders (mobile), wire up the load button
-    // Use event delegation for safety.
-    postsEl.addEventListener('click', function (e) {
-      const btn = e.target.closest && e.target.closest('.model-load-btn');
-      if (!btn) return;
-      const placeholder = btn.closest('.model-placeholder');
-      if (!placeholder) return;
-      // instantiate model-viewer inside placeholder
-      instantiateModelViewer(placeholder);
-      // remove the button after loading
-      try { btn.remove(); } catch (err) { }
-    });
+    // ...existing code...
   }
 
   function makeVisual(post) {
