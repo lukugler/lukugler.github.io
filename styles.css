@@ -189,6 +189,13 @@
     height: var(--vbox-h, auto) !important;
     object-fit: contain !important;
   }
+
+  /* Ensure model viewer has a usable height on phones even when
+     the surrounding frame didn't specify an explicit height. */
+  .model-viewer-el {
+    min-height: 220px;
+    max-height: 85vh;
+  }
 }
 
 /* Full corrected stylesheet — no // comments, balanced braces, includes fixes for 'two' captions and iframe touch handling. */
@@ -577,6 +584,43 @@ body {
   font-style: italic;
   margin-top: var(--caption-gap-two);
   text-align: center;
+}
+
+/* Tighten spacing for compare posts on small viewports so captions sit
+   closer to the media instead of being pushed down by a large --post-height */
+@media (max-width: 900px) {
+
+  .visual-post.compare,
+  .visual-post.compare.center {
+    /* let the post size to its content on small screens */
+    height: auto !important;
+    padding-bottom: 6px !important;
+  }
+
+  .visual-post.center {
+    /* Use auto rows so the media shrinks to fit and caption follows closely */
+    grid-template-rows: auto auto;
+  }
+
+  .visual-post.compare .vp-media-wrap {
+    /* align media to the top of the area so caption is directly below */
+    align-items: flex-start;
+    padding: 0 8px;
+    /* allow the wrapper itself to shrink rather than stretching to the --post-height */
+    height: auto !important;
+  }
+
+  .visual-post.compare .vp-media-frame {
+    /* allow the compare frame to shrink naturally */
+    height: auto !important;
+    max-height: none;
+  }
+
+  .visual-post.compare .visual-caption,
+  .compare .visual-caption {
+    margin-top: 6px !important;
+    padding: 6px 12px !important;
+  }
 }
 
 /* About */
