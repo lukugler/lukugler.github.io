@@ -422,7 +422,30 @@
     const scale = post.mediaScale || 1;
     const height = post.height || 420;
 
-    const shared = `class="visual-post ${layout === 'two' ? 'two' : (layout === 'left' || layout === 'right' ? 'side ' + layout : 'center')}" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
+    // detect mobile / phone-like contexts. Use touch or narrow viewport as heuristic.
+    const isTouchDevice = (typeof window !== 'undefined') && (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0));
+    const isNarrow = (typeof window !== 'undefined') && window.innerWidth <= 900;
+    const isMobile = isTouchDevice || isNarrow;
+
+    // helper to select mobile override if present, with multiple accepted field names
+    function pickBox(fieldBase) {
+      // possible names: e.g. mediaBoxWMobile, mediaBoxW_mobile
+      const mobileCandidates = [fieldBase + 'Mobile', fieldBase + '_mobile'];
+      const desktopCandidates = [fieldBase];
+      if (isMobile) {
+        for (const k of mobileCandidates) if (post[k] !== undefined) return post[k];
+        for (const k of desktopCandidates) if (post[k] !== undefined) return post[k];
+      } else {
+        for (const k of desktopCandidates) if (post[k] !== undefined) return post[k];
+        for (const k of mobileCandidates) if (post[k] !== undefined) return post[k];
+      }
+      return undefined;
+    }
+
+    const vboxWVal = pickBox('mediaBoxW');
+    const vboxHVal = pickBox('mediaBoxH');
+
+    const shared = `class="visual-post ${layout === 'two' ? 'two' : (layout === 'left' || layout === 'right' ? 'side ' + layout : 'center')}" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(vboxWVal, '100%')}; --vbox-h:${px(vboxHVal, 'auto')};"`;
 
     const shouldAutoplayVisual = (post.autoplay === undefined) ? true : Boolean(post.autoplay);
 
@@ -477,7 +500,7 @@
         const mobileDefaultOrbit = '200deg 50deg 1.0m';
         const desktopDefaultOrbit = '200deg 50deg 1.0m';
         const camOrbit = post.cameraOrbit || post.camera_orbit || (isTouchDevice || (typeof window !== 'undefined' && window.innerWidth <= 900) ? (post.cameraOrbitMobile || post.camera_orbit_mobile || mobileDefaultOrbit) : desktopDefaultOrbit);
-        const camTarget = (post.cameraTarget || post.camera_target) || '0m -1m 0m';
+        const camTarget = (post.cameraTarget || post.camera_target) || '0m 0m 0m';
         // Add a small min-height to ensure the element doesn't collapse when the
         // containing frame has no explicit height (common on responsive/mobile layouts).
         // Styling and breakpoints are also handled in CSS.
@@ -502,13 +525,14 @@
     } else {
       // center layout: allow per-post explicit sizing similar to compare posts
       let frameStyle = '';
-      if (post.mediaBoxW || post.mediaBoxH) {
+      // use mobile-aware vbox values selected earlier (vboxWVal / vboxHVal)
+      if (vboxWVal || vboxHVal) {
         frameStyle = 'style="';
-        frameStyle += `width: ${px(post.mediaBoxW, '100%')};`;
-        if (post.mediaBoxW && post.mediaBoxH && typeof post.mediaBoxW === 'number' && typeof post.mediaBoxH === 'number') {
-          frameStyle += ` aspect-ratio: ${post.mediaBoxW} / ${post.mediaBoxH};`;
+        frameStyle += `width: ${px(vboxWVal, '100%')};`;
+        if (vboxWVal && vboxHVal && typeof vboxWVal === 'number' && typeof vboxHVal === 'number') {
+          frameStyle += ` aspect-ratio: ${vboxWVal} / ${vboxHVal};`;
         } else {
-          frameStyle += ` height: ${px(post.mediaBoxH, 'auto')};`;
+          frameStyle += ` height: ${px(vboxHVal, 'auto')};`;
         }
         frameStyle += '"';
       }
@@ -530,7 +554,25 @@
   function makeCompare(post) {
     const postsEl = document.querySelector('.posts');
     const height = post.height || 420;
-    const shared = `class="visual-post compare center" style="--post-height:${height}px; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
+    // mobile-aware mediaBox selection (support mediaBoxWMobile / mediaBoxW_mobile)
+    const isTouchDevice = (typeof window !== 'undefined') && (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0));
+    const isNarrow = (typeof window !== 'undefined') && window.innerWidth <= 900;
+    const isMobile = isTouchDevice || isNarrow;
+    function pickBox(fieldBase) {
+      const mobileCandidates = [fieldBase + 'Mobile', fieldBase + '_mobile'];
+      const desktopCandidates = [fieldBase];
+      if (isMobile) {
+        for (const k of mobileCandidates) if (post[k] !== undefined) return post[k];
+        for (const k of desktopCandidates) if (post[k] !== undefined) return post[k];
+      } else {
+        for (const k of desktopCandidates) if (post[k] !== undefined) return post[k];
+        for (const k of mobileCandidates) if (post[k] !== undefined) return post[k];
+      }
+      return undefined;
+    }
+    const vboxWVal = pickBox('mediaBoxW');
+    const vboxHVal = pickBox('mediaBoxH');
+    const shared = `class="visual-post compare center" style="--post-height:${height}px; --vbox-w:${px(vboxWVal, '100%')}; --vbox-h:${px(vboxHVal, 'auto')};"`;
 
     // Create img tags; we'll also set an inline style on the vp-media-frame to
     // ensure the compare wrapper measures at the intended pixel dimensions
@@ -543,14 +585,14 @@
     // If both width and height are numeric we also emit an aspect-ratio so
     // the element can scale proportionally when the viewport is narrower than
     // the requested pixel width (important for phone usage).
-    let frameStyle = `style="width: ${px(post.mediaBoxW, '100%')};`;
-    if (post.mediaBoxW && post.mediaBoxH && typeof post.mediaBoxW === 'number' && typeof post.mediaBoxH === 'number') {
+    let frameStyle = `style="width: ${px(vboxWVal, '100%')};`;
+    if (vboxWVal && vboxHVal && typeof vboxWVal === 'number' && typeof vboxHVal === 'number') {
       // aspect-ratio takes the form 'width / height' and allows the browser to
       // compute height when width is constrained (e.g., max-width:100%).
-      frameStyle += ` aspect-ratio: ${post.mediaBoxW} / ${post.mediaBoxH};`;
+      frameStyle += ` aspect-ratio: ${vboxWVal} / ${vboxHVal};`;
     } else {
       // If exact height is provided but not both numbers, set height as a fallback
-      frameStyle += ` height: ${px(post.mediaBoxH, 'auto')};`;
+      frameStyle += ` height: ${px(vboxHVal, 'auto')};`;
     }
     frameStyle += '"';
 
