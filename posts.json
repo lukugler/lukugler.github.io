@@ -7,6 +7,12 @@
     "mediaType": "image",
     "media2Type": "image",
     "caption": "Grey Glacier (Patagonia) comparison: 1980 vs 2022.",
+    "captionLinks": [
+      {
+        "text": "Grey Glacier",
+        "href": "https://de.wikipedia.org/wiki/Grey-Gletscher"
+      }
+    ],
     "height": 700,
     "mediaScale": 1.0,
     "mediaBoxW": 700,
