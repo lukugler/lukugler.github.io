@@ -2,16 +2,16 @@
   {
     "type": "visual",
     "layout": "center",
-    "media": "assets/model.glb",
-    "mediaType": "model",
-    "caption": "Interactive 3D model viewer (GLB). Use mouse/touch (carefully) to rotate and pinch to zoom.",
+    "media": "assets/grey_glacier_1980.jpeg",
+    "media2": "assets/grey_glacier_google.jpeg",
+    "mediaType": "image",
+    "media2Type": "image",
+    "caption": "Grey Glacier (Patagonia) comparison: 1980 vs 2022.",
     "height": 700,
     "mediaScale": 1.0,
-    "mediaBoxW": 1100,
-    "mediaBoxH": 550,
-    "mediaBoxWMobile": 400,
-    "mediaBoxHMobile": 400,
-    "subtype": "model"
+    "mediaBoxW": 700,
+    "mediaBoxH": 700,
+    "subtype": "compare"
   },
   {
     "title": "Advances in Historical Aerial Image Analysis: Boosting SfM Pipelines with Learned Models",
@@ -31,23 +31,39 @@
   {
     "type": "visual",
     "layout": "center",
-    "media": "assets/grey_glacier_1980.jpeg",
-    "media2": "assets/grey_glacier_google.jpeg",
-    "mediaType": "image",
-    "media2Type": "image",
-    "caption": "Grey Glacier (Patagonia) comparison: 1980 vs 2022.",
+    "media": "assets/model.glb",
+    "mediaType": "model",
+    "caption": "Grey & Dickson Glacier (Patagonia) processed from Chile-60 data recorded in 1980. Use mouse/touch (carefully) to rotate and pinch to zoom.",
+    "captionLinks": [
+      {
+        "text": "Grey",
+        "href": "https://de.wikipedia.org/wiki/Grey-Gletscher"
+      },
+      {
+        "text": "Dickson",
+        "href": "https://en.wikipedia.org/wiki/Dickson_Glacier"
+      }
+    ],
     "height": 700,
     "mediaScale": 1.0,
-    "mediaBoxW": 700,
-    "mediaBoxH": 700,
-    "subtype": "compare"
+    "mediaBoxW": 1100,
+    "mediaBoxH": 550,
+    "mediaBoxWMobile": 400,
+    "mediaBoxHMobile": 400,
+    "subtype": "model"
   },
   {
     "type": "visual",
     "layout": "center",
     "media": "assets/grey_glacier_long.png",
     "mediaType": "image",
-    "caption": "Reculus Glacier (Patagonia) 1980.",
+    "caption": "Reclus Glacier (Campo de Hielo Sur, Chile) 1980.",
+    "captionLinks": [
+      {
+        "text": "Reclus Glacier",
+        "href": "https://de.wikipedia.org/wiki/Reclus_(Chile)"
+      }
+    ],
     "height": 330,
     "mediaScale": 1.0,
     "mediaBoxW": 1100,

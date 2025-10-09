@@ -829,3 +829,19 @@ body {
 }
 
 /* ...existing code... */
+
+/* Ensure links in captions and excerpts keep the same text color and are underlined */
+.visual-caption a,
+.visual-caption a:visited,
+.excerpt a,
+.excerpt a:visited {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.visual-caption a:hover,
+.excerpt a:hover {
+  color: inherit;
+  text-decoration: underline;
+}

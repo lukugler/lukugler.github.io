@@ -363,6 +363,54 @@
     }
   }
 
+  // --- Rich text helpers for captions/excerpts with multiple links (non-breaking) ---
+  function _escapeRegex(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function linkifyOrdered(text, links) {
+    try {
+      const str = String(text || '');
+      const arr = Array.isArray(links) ? links.filter(l => l && l.text && l.href) : [];
+      if (!arr.length || !str) return str; // keep original behavior (raw string)
+      let out = '';
+      let i = 0;
+      let safety = 0;
+      while (i < str.length && safety++ < 10000) {
+        // find earliest next match among provided link texts from index i
+        let bestIdx = -1; let bestLink = null;
+        for (const l of arr) {
+          const idx = str.indexOf(l.text, i);
+          if (idx !== -1 && (bestIdx === -1 || idx < bestIdx)) { bestIdx = idx; bestLink = l; }
+        }
+        if (bestIdx === -1) { out += str.slice(i); break; }
+        if (bestIdx > i) out += str.slice(i, bestIdx);
+        const linkText = bestLink.text;
+        const href = bestLink.href;
+        // basic attribute escaping for quotes
+        const safeHref = String(href).replace(/"/g, '&quot;');
+        out += `<a href="${safeHref}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+        i = bestIdx + linkText.length;
+        // Remove this link instance from future searches to avoid multiple wraps of same token if desired
+        // Comment the next line if you want to wrap subsequent occurrences too
+        arr.splice(arr.indexOf(bestLink), 1);
+        if (!arr.length) { out += str.slice(i); break; }
+      }
+      return out;
+    } catch (e) {
+      return String(text || '');
+    }
+  }
+  function buildCaptionHTML(post) {
+    if (post && post.captionHtml) return String(post.captionHtml);
+    const txt = (post && post.caption) || '';
+    const links = (post && Array.isArray(post.captionLinks)) ? post.captionLinks : [];
+    return links.length ? linkifyOrdered(txt, links) : txt;
+  }
+  function buildExcerptHTML(post) {
+    if (post && post.excerptHtml) return String(post.excerptHtml);
+    const txt = (post && post.excerpt) || '';
+    const links = (post && Array.isArray(post.excerptLinks)) ? post.excerptLinks : [];
+    return links.length ? linkifyOrdered(txt, links) : txt;
+  }
+
   function px(val, fallback) {
     if (val === undefined || val === null || val === '') return fallback;
     return (typeof val === 'number') ? `${val}px` : String(val).match(/px|%|vh|vw$/) ? String(val) : `${val}px`;
@@ -392,12 +440,13 @@
 
     const heightVar = `--post-height:${post.height ? px(post.height, 'auto') : 'auto'}`;
 
+    const excerptHTML = buildExcerptHTML(post);
     const html = `
       <article class="${classes.join(' ')}" style="${heightVar}">
         <div class="content">
           <h3><a href="${aHref}">${post.title || ''}</a></h3>
           <div class="meta">${post.date ? fmtDate(post.date) : ''}</div>
-          <div class="excerpt">${post.excerpt || ''}</div>
+          <div class="excerpt">${excerptHTML}</div>
           <div class="actions">
             ${post.viewer ? `<a class="btn" href="${post.viewer}" target="_blank" rel="noopener">Viewer</a>` : ''}
             ${post.projectReport ? `<a class="btn" href="${post.projectReport}" target="_blank" rel="noopener">Project Report</a>` : ''}
@@ -451,6 +500,7 @@
     const vboxHVal = pickBox('mediaBoxH');
 
     const shared = `class="visual-post ${layout === 'two' ? 'two' : (layout === 'left' || layout === 'right' ? 'side ' + layout : 'center')}" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(vboxWVal, '100%')}; --vbox-h:${px(vboxHVal, 'auto')};"`;
+    const captionHTML = buildCaptionHTML(post);
 
     const shouldAutoplayVisual = (post.autoplay === undefined) ? true : Boolean(post.autoplay);
 
@@ -528,11 +578,11 @@
           <div class="vp-media-wrap"><div class="vp-media-frame">${mediaTag(post.media, post.mediaType)}</div></div>
           <div class="vp-media-wrap"><div class="vp-media-frame">${mediaTag(post.media2, post.media2Type)}</div></div>
         </div>
-        <div class="visual-caption">${post.caption || ''}</div>`;
+        <div class="visual-caption">${captionHTML}</div>`;
     } else if (layout === 'left' || layout === 'right') {
       inner = `
         <div class="vp-media-wrap"><div class="vp-media-frame">${mediaTag(post.media, post.mediaType)}</div></div>
-        <div class="visual-caption">${post.caption || ''}</div>`;
+        <div class="visual-caption">${captionHTML}</div>`;
     } else {
       // center layout: allow per-post explicit sizing similar to compare posts
       let frameStyle = '';
@@ -557,7 +607,7 @@
 
       inner = `
         <div class="vp-media-wrap"><div class="vp-media-frame" ${frameStyle}>${mediaTag(post.media, post.mediaType)}</div></div>
-        <div class="visual-caption">${post.caption || ''}</div>`;
+        <div class="visual-caption">${captionHTML}</div>`;
     }
 
     const html = `<section ${shared}>${inner}</section>`;
@@ -614,6 +664,7 @@
     }
     frameStyle += '"';
 
+    const captionHTML = buildCaptionHTML(post);
     const inner = `
       <div class="vp-media-wrap">
         <div class="vp-media-frame" ${frameStyle}>
@@ -626,7 +677,7 @@
           </div>
         </div>
       </div>
-      <div class="visual-caption">${post.caption || ''}</div>`;
+      <div class="visual-caption">${captionHTML}</div>`;
 
     const html = `<section ${shared}>${inner}</section>`;
     const wrap = document.createElement('div');
