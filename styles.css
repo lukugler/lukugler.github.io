@@ -138,7 +138,8 @@
 
 /* Make sure visual-caption below compare stays readable */
 .compare .visual-caption {
-  padding: 8px 12px;
+  padding: 0 12px;
+  /* horizontal padding only; vertical spacing via margin from base .visual-caption */
   font-style: italic;
   color: #cbd5e1;
 }
@@ -219,11 +220,16 @@ body {
   --container-max: 1100px;
   --post-height: 420px;
   --media-scale: 1;
-  --gap: 3px;
+  /* Unified space between posts (desktop); mobile overrides below */
+  --gap: 28px;
   --hover-green: #20A387E6;
-  --caption-gap-center: 3px;
-  --caption-gap-two: 3px;
-  --two-caption-block: 3px;
+  /* Unified media-to-caption spacing */
+  --media-caption-gap: 12px;
+  /* Keep legacy vars but map to unified gap */
+  --caption-gap-center: var(--media-caption-gap);
+  --caption-gap-two: var(--media-caption-gap);
+  /* Reserve vertical space for caption in two-column visual posts */
+  --two-caption-block: 36px;
 }
 
 /* Header / hero */
@@ -234,7 +240,7 @@ body {
 
 .hero {
   width: 100%;
-  height: 750px;
+  height: 600px;
   background: #0f0f0f;
   overflow: hidden;
 }
@@ -485,15 +491,18 @@ body {
 .visual-post.center {
   display: grid;
   grid-template-rows: 1fr auto;
-  padding: 8px 0 10px;
+  padding: 8px 0;
+  /* no horizontal padding so media aligns with post edges */
 }
 
 .visual-post.center .vp-media-wrap {
-  padding: 0 12px;
+  padding: 0;
+  /* remove inner padding to match article post width */
 }
 
 .visual-post.center .visual-caption {
-  padding: 4px 12px;
+  padding: 0 12px;
+  /* horizontal padding only; vertical spacing via margin */
   font-style: italic;
   margin-top: var(--caption-gap-center);
   white-space: normal;
@@ -505,7 +514,7 @@ body {
   display: grid;
   grid-template-columns: minmax(0, calc(var(--container-max) * var(--media-scale))) 1fr;
   gap: 16px;
-  padding: 12px;
+  padding: 8px 12px;
   align-items: center;
 }
 
@@ -522,6 +531,7 @@ body {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   line-clamp: 2;
+  margin-top: var(--media-caption-gap);
 }
 
 .visual-post.right {
@@ -536,7 +546,7 @@ body {
 .visual-post.two {
   display: grid;
   grid-template-rows: 1fr auto;
-  padding: 12px;
+  padding: 8px 12px;
   gap: 10px;
   height: var(--post-height);
   overflow: visible;
@@ -573,7 +583,8 @@ body {
   overflow: visible;
   text-overflow: unset;
   display: block;
-  padding: 2px 6px;
+  padding: 0 6px;
+  /* horizontal padding only */
   font-style: italic;
   margin-top: var(--caption-gap-two);
   text-align: center;
@@ -681,6 +692,36 @@ body {
 }
 
 @media (max-width: 860px) {
+
+  /* Add a bit more breathing room between posts on mobile */
+  .posts {
+    gap: var(--gap);
+  }
+
+  /* Auto-size visual posts to their media on phones (no fixed --post-height). */
+  .visual-post {
+    height: auto !important;
+  }
+
+  .visual-post.center {
+    grid-template-rows: auto auto;
+    padding: 0;
+  }
+
+  .visual-post .vp-media-wrap {
+    height: auto !important;
+    padding: 0 8px;
+  }
+
+  .visual-post.center .visual-caption {
+    margin-top: var(--caption-gap-center);
+    padding: 0 8px;
+  }
+
+  /* When side layout stacks on mobile, ensure same media->caption gap */
+  .visual-post.side .visual-caption {
+    margin-top: var(--media-caption-gap);
+  }
 
   .responsive-iframe,
   #network-iframe {

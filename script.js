@@ -263,7 +263,7 @@
       .visual-post.two .two-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
       /* ---- MOBILE: text-first, NO cropping, NO fixed caps, NO description truncation ---- */
-      @media (max-width: 900px) {
+  @media (max-width: 900px) {
         /* Text before media */
         .card.media-left { grid-template-columns: 1fr; align-items: flex-start; }
         .card.media-left .content { order: 0; justify-content: flex-start; }
@@ -274,7 +274,12 @@
 
         /* Media is fluid, no cropping */
         .card .media-frame,
-        .visual-post .vp-media-frame { width: 100% !important; height: auto !important; overflow: visible !important; }
+        .visual-post .vp-media-frame {
+          /* On mobile, always use full width but allow explicit height via --vbox-h */
+          width: 100% !important;
+          height: var(--vbox-h, auto) !important;
+          overflow: visible !important;
+        }
         .card .media-frame > img,
         .card .media-frame > video,
         .visual-post .vp-media-frame > img,
@@ -422,7 +427,30 @@
     const scale = post.mediaScale || 1;
     const height = post.height || 420;
 
-    const shared = `class="visual-post ${layout === 'two' ? 'two' : (layout === 'left' || layout === 'right' ? 'side ' + layout : 'center')}" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
+    // detect mobile / phone-like contexts. Use touch or narrow viewport as heuristic.
+    const isTouchDevice = (typeof window !== 'undefined') && (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0));
+    const isNarrow = (typeof window !== 'undefined') && window.innerWidth <= 900;
+    const isMobile = isTouchDevice || isNarrow;
+
+    // helper to select mobile override if present, with multiple accepted field names
+    function pickBox(fieldBase) {
+      // possible names: e.g. mediaBoxWMobile, mediaBoxW_mobile
+      const mobileCandidates = [fieldBase + 'Mobile', fieldBase + '_mobile'];
+      const desktopCandidates = [fieldBase];
+      if (isMobile) {
+        for (const k of mobileCandidates) if (post[k] !== undefined) return post[k];
+        for (const k of desktopCandidates) if (post[k] !== undefined) return post[k];
+      } else {
+        for (const k of desktopCandidates) if (post[k] !== undefined) return post[k];
+        for (const k of mobileCandidates) if (post[k] !== undefined) return post[k];
+      }
+      return undefined;
+    }
+
+    const vboxWVal = pickBox('mediaBoxW');
+    const vboxHVal = pickBox('mediaBoxH');
+
+    const shared = `class="visual-post ${layout === 'two' ? 'two' : (layout === 'left' || layout === 'right' ? 'side ' + layout : 'center')}" style="--post-height:${height}px; --media-scale:${scale}; --vbox-w:${px(vboxWVal, '100%')}; --vbox-h:${px(vboxHVal, 'auto')};"`;
 
     const shouldAutoplayVisual = (post.autoplay === undefined) ? true : Boolean(post.autoplay);
 
@@ -439,7 +467,11 @@
 
       // Inject both module and legacy (nomodule) builds so older mobile
       // browsers that don't support ES modules can still use model-viewer.
-      if (window._modelViewerScriptInjected) return;
+      // If custom element already defined, skip injection.
+      if (window._modelViewerScriptInjected || (window.customElements && window.customElements.get && window.customElements.get('model-viewer'))) {
+        window._modelViewerScriptInjected = true;
+        return;
+      }
 
       // Modern (module) build
       const mod = document.createElement('script');
@@ -477,11 +509,13 @@
         const mobileDefaultOrbit = '200deg 50deg 1.0m';
         const desktopDefaultOrbit = '200deg 50deg 1.0m';
         const camOrbit = post.cameraOrbit || post.camera_orbit || (isTouchDevice || (typeof window !== 'undefined' && window.innerWidth <= 900) ? (post.cameraOrbitMobile || post.camera_orbit_mobile || mobileDefaultOrbit) : desktopDefaultOrbit);
-        const camTarget = (post.cameraTarget || post.camera_target) || '0m -1m 0m';
+        const camTarget = (post.cameraTarget || post.camera_target) || '0m 0m 0m';
+        // Add iOS Quick Look source if available (explicit or inferred from .glb)
+        const iosSrc = post.iosSrc || post.ios_src || (typeof src === 'string' && src.toLowerCase().endsWith('.glb') ? src.replace(/\.glb$/i, '.usdz') : undefined);
         // Add a small min-height to ensure the element doesn't collapse when the
         // containing frame has no explicit height (common on responsive/mobile layouts).
         // Styling and breakpoints are also handled in CSS.
-        return `<model-viewer class="visual-media model-viewer-el" src="${src}" alt="${post.title || ''}" camera-controls auto-rotate exposure="1" interaction-policy="allow" min-field-of-view="2deg" max-field-of-view="75deg" camera-orbit="${camOrbit}" camera-target="${camTarget}" style="min-height:240px; width:100%;"></model-viewer>`;
+        return `<model-viewer class="visual-media model-viewer-el" src="${src}"${iosSrc ? ` ios-src="${iosSrc}"` : ''} alt="${post.title || ''}" camera-controls auto-rotate exposure="1" interaction-policy="allow" min-field-of-view="2deg" max-field-of-view="75deg" camera-orbit="${camOrbit}" camera-target="${camTarget}" ar ar-modes="webxr scene-viewer quick-look" style="min-height:240px; width:100%; height:100%;"></model-viewer>`;
       }
       if (t === 'video') return `<video class="visual-media" src="${src}" ${shouldAutoplayVisual ? 'autoplay muted loop playsinline' : ''}></video>`;
       return `<img class="visual-media" src="${src}" alt="">`;
@@ -502,13 +536,21 @@
     } else {
       // center layout: allow per-post explicit sizing similar to compare posts
       let frameStyle = '';
-      if (post.mediaBoxW || post.mediaBoxH) {
+      // use mobile-aware vbox values selected earlier (vboxWVal / vboxHVal)
+      if (vboxWVal || vboxHVal) {
         frameStyle = 'style="';
-        frameStyle += `width: ${px(post.mediaBoxW, '100%')};`;
-        if (post.mediaBoxW && post.mediaBoxH && typeof post.mediaBoxW === 'number' && typeof post.mediaBoxH === 'number') {
-          frameStyle += ` aspect-ratio: ${post.mediaBoxW} / ${post.mediaBoxH};`;
+        if (isMobile) {
+          // On mobile, always let the frame span full width and honor explicit height
+          frameStyle += `width: 100%;`;
+          if (vboxHVal !== undefined) frameStyle += ` height: ${px(vboxHVal, 'auto')};`;
         } else {
-          frameStyle += ` height: ${px(post.mediaBoxH, 'auto')};`;
+          frameStyle += `width: ${px(vboxWVal, '100%')};`;
+          if (vboxWVal && vboxHVal && typeof vboxWVal === 'number' && typeof vboxHVal === 'number') {
+            // Desktop: when both numeric, use aspect-ratio for proportional scaling
+            frameStyle += ` aspect-ratio: ${vboxWVal} / ${vboxHVal};`;
+          } else {
+            frameStyle += ` height: ${px(vboxHVal, 'auto')};`;
+          }
         }
         frameStyle += '"';
       }
@@ -530,7 +572,25 @@
   function makeCompare(post) {
     const postsEl = document.querySelector('.posts');
     const height = post.height || 420;
-    const shared = `class="visual-post compare center" style="--post-height:${height}px; --vbox-w:${px(post.mediaBoxW, '100%')}; --vbox-h:${px(post.mediaBoxH, 'auto')};"`;
+    // mobile-aware mediaBox selection (support mediaBoxWMobile / mediaBoxW_mobile)
+    const isTouchDevice = (typeof window !== 'undefined') && (('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0));
+    const isNarrow = (typeof window !== 'undefined') && window.innerWidth <= 900;
+    const isMobile = isTouchDevice || isNarrow;
+    function pickBox(fieldBase) {
+      const mobileCandidates = [fieldBase + 'Mobile', fieldBase + '_mobile'];
+      const desktopCandidates = [fieldBase];
+      if (isMobile) {
+        for (const k of mobileCandidates) if (post[k] !== undefined) return post[k];
+        for (const k of desktopCandidates) if (post[k] !== undefined) return post[k];
+      } else {
+        for (const k of desktopCandidates) if (post[k] !== undefined) return post[k];
+        for (const k of mobileCandidates) if (post[k] !== undefined) return post[k];
+      }
+      return undefined;
+    }
+    const vboxWVal = pickBox('mediaBoxW');
+    const vboxHVal = pickBox('mediaBoxH');
+    const shared = `class="visual-post compare center" style="--post-height:${height}px; --vbox-w:${px(vboxWVal, '100%')}; --vbox-h:${px(vboxHVal, 'auto')};"`;
 
     // Create img tags; we'll also set an inline style on the vp-media-frame to
     // ensure the compare wrapper measures at the intended pixel dimensions
@@ -543,14 +603,14 @@
     // If both width and height are numeric we also emit an aspect-ratio so
     // the element can scale proportionally when the viewport is narrower than
     // the requested pixel width (important for phone usage).
-    let frameStyle = `style="width: ${px(post.mediaBoxW, '100%')};`;
-    if (post.mediaBoxW && post.mediaBoxH && typeof post.mediaBoxW === 'number' && typeof post.mediaBoxH === 'number') {
+    let frameStyle = `style="width: ${px(vboxWVal, '100%')};`;
+    if (vboxWVal && vboxHVal && typeof vboxWVal === 'number' && typeof vboxHVal === 'number') {
       // aspect-ratio takes the form 'width / height' and allows the browser to
       // compute height when width is constrained (e.g., max-width:100%).
-      frameStyle += ` aspect-ratio: ${post.mediaBoxW} / ${post.mediaBoxH};`;
+      frameStyle += ` aspect-ratio: ${vboxWVal} / ${vboxHVal};`;
     } else {
       // If exact height is provided but not both numbers, set height as a fallback
-      frameStyle += ` height: ${px(post.mediaBoxH, 'auto')};`;
+      frameStyle += ` height: ${px(vboxHVal, 'auto')};`;
     }
     frameStyle += '"';
 

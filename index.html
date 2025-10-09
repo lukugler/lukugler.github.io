@@ -7,6 +7,10 @@
   <title>Your Blog</title>
   <meta name="description" content="Personal blog about maps, 3D and experiments">
   <link rel="stylesheet" href="styles.css">
+
+  <!-- model-viewer (modern + legacy) for robust 3D/AR across browsers -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@^3.5/dist/model-viewer.min.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@google/model-viewer@^3.5/dist/model-viewer-legacy.js"></script>
 </head>
 
 <body>
@@ -63,6 +67,7 @@
       </div>
     </section>
   </main>
+
 
   <footer class="site-footer">
     <p>&copy; <span id="year"></span> Lucas Kugler. Built on GitHub Pages.</p>
