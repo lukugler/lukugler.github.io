@@ -87,9 +87,10 @@
     "mediaBoxW": 550,
     "mediaBoxH": 550,
     "mobileMaxVH": 50,
-    "poster": "assets/posters/EGU_23_corona.pdf",
     "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en",
-    "projectReport": "https://publikationen.sachsen.de/bdb/artikel/42436"
+    "projectReport": "https://publikationen.sachsen.de/bdb/artikel/42436",
+    "conferenceAbstract": "https://meetingorganizer.copernicus.org/EGU23/EGU23-5487.html",
+    "poster": "assets/posters/EGU_23_corona.pdf"
   },
   {
     "type": "visual",
