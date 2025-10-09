@@ -31,7 +31,7 @@
   {
     "type": "visual",
     "layout": "center",
-    "media": "assets/model.glb",
+    "media": "assets/model_small.glb",
     "mediaType": "model",
     "caption": "Grey & Dickson Glacier (Patagonia) processed from Chile-60 data recorded in 1980. Use mouse/touch (carefully) to rotate and pinch to zoom.",
     "captionLinks": [
@@ -49,7 +49,7 @@
     "mediaBoxW": 1100,
     "mediaBoxH": 550,
     "mediaBoxWMobile": 400,
-    "mediaBoxHMobile": 400,
+    "mediaBoxHMobile": 500,
     "subtype": "model"
   },
   {
@@ -87,16 +87,17 @@
   },
   {
     "type": "visual",
-    "layout": "two",
+    "layout": "center",
     "media": "assets/post_3_sn_1965.jpeg",
-    "mediaType": "image",
     "media2": "assets/post_3_sn_1975.jpeg",
+    "mediaType": "image",
     "media2Type": "image",
     "caption": "CORONA imagery over Leisnig (Saxony) 1965 & 1975.",
-    "height": 550,
+    "height": 700,
     "mediaScale": 1.0,
-    "mediaBoxW": 550,
-    "mediaBoxH": 550
+    "mediaBoxW": 700,
+    "mediaBoxH": 700,
+    "subtype": "compare"
   },
   {
     "type": "visual",
