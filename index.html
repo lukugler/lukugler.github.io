@@ -10,7 +10,8 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
 
-  <link rel="preload" as="video" href="assets/header3_web_fullres.mp4">
+  <link rel="preload" as="video" href="assets/header3_web_fullres_16_9.mp4" media="(min-width: 769px)">
+  <link rel="preload" as="video" href="assets/header3_web_fullres_mob.mp4" media="(max-width: 768px)">
 
   <!-- model-viewer (modern + legacy) – deferred so header video loads first -->
   <script defer type="module"
@@ -29,9 +30,12 @@
         <a class="btn about-btn" href="#about" title="About me">About Me</a>
       </div>
 
-      <!-- Header video -->
-      <video class="hero-video" src="assets/header3_web_fullres.mp4" autoplay muted loop playsinline preload="auto"
-        poster="assets/header-poster.jpg" aria-label="Header video"></video>
+      <!-- Header video: desktop (16:9) vs mobile -->
+      <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/header-poster.jpg"
+        aria-label="Header video">
+        <source src="assets/header3_web_fullres_mob.mp4" media="(max-width: 768px)" type="video/mp4">
+        <source src="assets/header3_web_fullres_16_9.mp4" type="video/mp4">
+      </video>
 
       <!-- Empty overlay kept for future effects (safe to remove) -->
       <div class="hero-overlay"></div>
