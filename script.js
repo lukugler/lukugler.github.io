@@ -839,13 +839,25 @@
     }
   })();
 
-  // Header video: ensure playsinline on iOS and safe autoplay
+  // Header video: ensure playsinline on iOS and aggressive autoplay
   document.addEventListener('DOMContentLoaded', () => {
     const vid = document.querySelector('.hero-video');
     if (vid) {
       vid.setAttribute('playsinline', '');
-      const play = () => vid.play().catch(() => { });
-      if (vid.readyState >= 2) play(); else vid.addEventListener('loadeddata', play);
+      vid.muted = true;
+      const play = () => { if (vid.paused) vid.play().catch(() => { }); };
+      // Try on every readiness event
+      vid.addEventListener('canplay', play);
+      vid.addEventListener('loadeddata', play);
+      vid.addEventListener('loadedmetadata', play);
+      // Also try immediately and after a short delay
+      play();
+      setTimeout(play, 100);
+      setTimeout(play, 500);
+      // Fallback: play on first user interaction
+      const onInteract = () => { play(); document.removeEventListener('touchstart', onInteract); document.removeEventListener('scroll', onInteract); };
+      document.addEventListener('touchstart', onInteract, { once: true, passive: true });
+      document.addEventListener('scroll', onInteract, { once: true, passive: true });
     }
   });
 })();
