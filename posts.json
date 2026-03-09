@@ -93,6 +93,17 @@
     "tag": "research"
   },
   {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/post_EGU24_visu.jpeg",
+    "mediaType": "image",
+    "caption": "A fail in processing but visually appealing. The image shows data gaps in downloaded Sentinel-2 false-color-composites.",
+    "height": 700,
+    "mediaScale": 1.0,
+    "mediaBoxW": 700,
+    "mediaBoxH": 700
+  },
+  {
     "title": "Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony",
     "excerpt": "Processing land cover maps from CORONA spy imagery. The work was part of my Master’s thesis project and the following LfULG project on historical land cover change in Saxony between 1960 and 1990. The work was presented at the 2023s EGU conference. For data access check the viewer and for more processing details check the project report.",
     "media": "assets/post_1_header_corona.jpg",
