@@ -97,7 +97,7 @@
     "layout": "center",
     "media": "assets/post_EGU24_visu.jpeg",
     "mediaType": "image",
-    "caption": "A fail in processing but visually appealing. The image shows data gaps in downloaded Sentinel-2 false-color-composites.",
+    "caption": "A processing fail but visually appealing. The image shows data gaps in downloaded Sentinel-2 false-color-composites.",
     "height": 700,
     "mediaScale": 1.0,
     "mediaBoxW": 700,
