@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <title>Research</title>
+    <meta name="description" content="Research posts">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body data-autoload-posts="false">
+    <header class="site-header">
+        <div class="hero" style="height: 180px; background:#0f0f0f;">
+            <div style="position:absolute; top:14px; left:16px; z-index:5; display:flex; gap:8px;">
+                <a class="btn about-btn" href="index.html" title="Home">home</a>
+            </div>
+            <div class="hero-overlay" style="background: linear-gradient(to bottom, rgba(0,0,0,.15), rgba(0,0,0,.10));">
+                <h1 style="margin:0; font-style: italic; font-weight: 800;">Research</h1>
+            </div>
+        </div>
+    </header>
+
+    <main id="content">
+        <div class="filter-bar" role="toolbar" aria-label="Filter posts">
+            <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+            <button class="filter-btn" data-filter="research" aria-pressed="false">Research</button>
+            <button class="filter-btn" data-filter="journal" aria-pressed="false">Journal</button>
+        </div>
+
+        <section class="posts" id="posts" aria-label="Research posts">
+            <noscript>Please enable JavaScript to load posts.</noscript>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; <span id="year"></span> Lucas Kugler. Built on GitHub Pages.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Update footer year
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+    <script>
+        // Minimal renderer for article cards reusing the same markup style
+        function fmtDate(iso) {
+            try { const d = new Date(iso); return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }); } catch { return iso; }
+        }
+        function revealOnIntersect(el) {
+            const io = new IntersectionObserver(entries => {
+                entries.forEach(e => e.isIntersecting && e.target.classList.add('revealed'));
+            }, { threshold: 0.12 });
+            io.observe(el);
+        }
+        function px(val, fallback) {
+            if (val === undefined || val === null || val === '') return fallback;
+            return (typeof val === 'number') ? `${val}px` : String(val).match(/px|%|vh|vw$/) ? String(val) : `${val}px`;
+        }
+        function buildExcerptHTML(post) { return post && post.excerptHtml ? String(post.excerptHtml) : (post && post.excerpt) || ''; }
+
+        function makeArticleCard(post, container) {
+            const aHref = (post.href && post.href.endsWith('.md'))
+                ? `articles/article.html?src=${encodeURIComponent(post.href)}&title=${encodeURIComponent(post.title || '')}&date=${encodeURIComponent(post.date || '')}`
+                : (post.href || '#');
+
+            const shouldAutoplay = (post.autoplay === undefined) ? true : Boolean(post.autoplay);
+            const mediaTag = post.mediaType === 'video'
+                ? `<video src="${post.media}" ${shouldAutoplay ? 'autoplay muted loop playsinline' : ''} poster="${post.poster || ''}"></video>`
+                : `<img src="${post.media}" alt="">`;
+
+            const tag = (post.tag || '').toLowerCase();
+            const tagBadge = tag ? `<span class="tag ${tag}">${tag}</span>` : '';
+
+            const classes = ['card'];
+            if (post.layout === 'media-left') classes.push('media-left');
+
+            const mediaStyles = [
+                `--media-w:${px(post.mediaBoxW, '100%')}`,
+                `--media-h:${px(post.mediaBoxH, 'auto')}`
+            ].join(';');
+
+            const heightVar = `--post-height:${post.height ? px(post.height, 'auto') : 'auto'}`;
+
+            const excerptHTML = buildExcerptHTML(post);
+            const html = `
+        <article class="${classes.join(' ')}" style="${heightVar}" data-tag="${tag}">
+          <div class="content">
+            <h3><a href="${aHref}">${post.title || ''}</a></h3>
+            <div class="meta">${post.date ? fmtDate(post.date) : ''}${tagBadge}</div>
+            <div class="excerpt">${excerptHTML}</div>
+            <div class="actions">
+              ${post.viewer ? `<a class="btn" href="${post.viewer}" target="_blank" rel="noopener">Viewer</a>` : ''}
+              ${post.projectReport ? `<a class="btn" href="${post.projectReport}" target="_blank" rel="noopener">Project Report</a>` : ''}
+              ${post.presentation ? `<a class="btn" href="${post.presentation}" target="_blank" rel="noopener">Presentation</a>` : ''}
+              ${post.poster ? `<a class="btn" href="${post.poster}" target="_blank" rel="noopener">Poster</a>` : ''}
+              ${post.conferenceAbstract ? `<a class="btn" href="${post.conferenceAbstract}" target="_blank" rel="noopener">Conference Abstract</a>` : ''}
+              ${aHref && aHref !== '#' ? `<a class="btn" href="${aHref}">Read</a>` : ''}
+            </div>
+          </div>
+          <div class="media">
+            <div class="media-frame" style="${mediaStyles}">
+              ${mediaTag}
+            </div>
+          </div>
+        </article>`;
+
+            const wrap = document.createElement('div');
+            wrap.innerHTML = html.trim();
+            const node = wrap.firstElementChild;
+            container.appendChild(node);
+            revealOnIntersect(node);
+        }
+
+        async function load() {
+            const res = await fetch('posts.json');
+            const posts = await res.json();
+            // Only render article-type posts (non-visual)
+            const articles = posts.filter(p => p.type !== 'visual');
+            const container = document.getElementById('posts');
+            container.innerHTML = '';
+            articles.forEach(p => makeArticleCard(p, container));
+
+            // filtering
+            const buttons = Array.from(document.querySelectorAll('.filter-btn'));
+            function applyFilter(val) {
+                const v = (val || 'all').toLowerCase();
+                buttons.forEach(b => {
+                    const isActive = b.dataset.filter === v;
+                    b.classList.toggle('active', isActive);
+                    b.setAttribute('aria-pressed', String(isActive));
+                });
+                const cards = Array.from(container.querySelectorAll('article.card'));
+                cards.forEach(c => {
+                    const t = (c.getAttribute('data-tag') || '').toLowerCase();
+                    const show = (v === 'all') || (t === v);
+                    c.style.display = show ? '' : 'none';
+                });
+            }
+            buttons.forEach(btn => btn.addEventListener('click', () => applyFilter(btn.dataset.filter)));
+            applyFilter('all');
+        }
+
+        load().catch(err => {
+            const container = document.getElementById('posts');
+            container.innerHTML = `<p style="color:#fca5a5;">${err}</p>`;
+        });
+    </script>
+</body>
+
+</html>

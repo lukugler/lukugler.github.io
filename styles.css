@@ -1,0 +1,934 @@
+/* ...existing code... */
+
+/* ===== Compare (before/after) slider styles ===== */
+.compare .vp-media-frame {
+  position: relative;
+  padding: 0;
+  background: #000;
+}
+
+.compare .compare-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.compare .before,
+.compare .after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.compare .before .content-image,
+.compare .after .content-image {
+  position: absolute;
+  /* Keep images anchored to the top-left and sized to the frame. The JS
+     code locks image pixel width/height while dragging, so using top:0
+     left:0 prevents visual shifting. object-position is handled in JS. */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.compare .after {
+  width: 125px;
+  /* initial visible width; overridden by JS */
+}
+
+.compare .scroller {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  opacity: .92;
+  pointer-events: auto;
+  border: 5px solid #fff;
+  box-sizing: border-box;
+}
+
+.compare .scroller:hover {
+  opacity: 1;
+}
+
+.compare .scroller.scrolling {
+  pointer-events: none;
+  opacity: 1;
+}
+
+.compare .scroller__thumb {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.compare .scroller:before,
+.compare .scroller:after {
+  content: " ";
+  display: block;
+  width: 7px;
+  height: 9999px;
+  position: absolute;
+  left: 50%;
+  margin-left: -3.5px;
+  z-index: 30;
+  transition: .1s;
+  background: #fff;
+}
+
+.compare .scroller:before {
+  top: 100%;
+}
+
+.compare .scroller:after {
+  bottom: 100%;
+}
+
+/* Ensure scroller is above images */
+.compare .scroller {
+  z-index: 40;
+}
+
+.compare .before,
+.compare .after {
+  z-index: 10;
+}
+
+/* Accessibility: focus state */
+.compare .scroller:focus {
+  outline: 3px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Responsiveness: on small screens use object-fit: contain to avoid cropping important parts */
+@media (max-width: 900px) {
+
+  .compare .before .content-image,
+  .compare .after .content-image {
+    object-fit: contain;
+  }
+
+  .compare .scroller {
+    width: 44px;
+    height: 44px;
+    border-width: 4px;
+  }
+}
+
+/* make scroller slightly smaller on very narrow phones to avoid overflow */
+@media (max-width: 420px) {
+  .compare .scroller {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+  }
+}
+
+/* Make sure visual-caption below compare stays readable */
+.compare .visual-caption {
+  padding: 0 12px;
+  /* horizontal padding only; vertical spacing via margin from base .visual-caption */
+  font-style: italic;
+  color: #cbd5e1;
+}
+
+/* Keep compare frames from collapsing on narrow viewports.
+   Other responsive rules set vp-media-frame to height:auto which makes
+   absolutely-positioned before/after images collapse to 0 height. Give
+   compare frames an intrinsic aspect ratio and a small min-height so
+   they scale with width instead of disappearing on phones. */
+.visual-post.compare .vp-media-frame,
+.compare .vp-media-frame {
+  /* Honor explicit per-post box sizing via --vbox-w / --vbox-h. When both
+    width and height are numeric the JS will emit an inline aspect-ratio so
+    the frame can scale proportionally when constrained by the viewport.
+    Otherwise the browser will fall back to an explicit height if provided. */
+  width: var(--vbox-w, 100%);
+  max-width: 100%;
+  /* Let the browser derive height from aspect-ratio when present; otherwise
+    fall back to auto and respect any explicit height set on the element. */
+  height: auto !important;
+  min-height: 80px;
+  max-height: 85vh;
+  overflow: hidden;
+}
+
+/* ===== Model viewer styles: keep same responsive rules as images/videos in visual posts ===== */
+.model-viewer-el {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  /* model-viewer respects width/height */
+  background: var(--bg-color, transparent);
+}
+
+/* Ensure model-viewer inside vp-media-frame behaves like other media
+   and respects per-post aspect-ratio and the non-cropping mobile rules. */
+.vp-media-frame .model-viewer-el {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+}
+
+@media (max-width: 900px) {
+  .vp-media-frame .model-viewer-el {
+    width: var(--vbox-w, 100%) !important;
+    height: var(--vbox-h, auto) !important;
+    object-fit: contain !important;
+  }
+}
+
+/* Full corrected stylesheet — no // comments, balanced braces, includes fixes for 'two' captions and iframe touch handling. */
+
+/* Reset + basics */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;
+  color: hsl(220, 13%, 91%);
+  background: #1a1a1a;
+}
+
+/* Site variables */
+:root {
+  --container-max: 1100px;
+  --post-height: 420px;
+  --media-scale: 1;
+  /* Unified space between posts (desktop); mobile overrides below */
+  --gap: 28px;
+  --hover-green: #20A387E6;
+  /* Unified media-to-caption spacing */
+  --media-caption-gap: 12px;
+  /* Keep legacy vars but map to unified gap */
+  --caption-gap-center: var(--media-caption-gap);
+  --caption-gap-two: var(--media-caption-gap);
+  /* Reserve vertical space for caption in two-column visual posts */
+  --two-caption-block: 36px;
+}
+
+/* Header / hero */
+.site-header,
+.hero {
+  position: relative;
+}
+
+.hero {
+  width: 100%;
+  height: 600px;
+  background: #0f0f0f;
+  overflow: hidden;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.1) contrast(1.05);
+}
+
+.hero-overlay {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .25), rgba(0, 0, 0, .15));
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .35);
+}
+
+/* Buttons */
+.btn,
+.about-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  appearance: none;
+  border: 1px solid #2b2b2b;
+  background: #151515;
+  color: #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  font-style: italic;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;
+  transition: background .25s ease, color .25s ease;
+}
+
+.btn:hover,
+.about-btn:hover,
+.about-links .btn:hover {
+  background: var(--hover-green);
+  color: black;
+}
+
+/* Layout wrapper */
+#content {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.posts {
+  display: grid;
+  gap: var(--gap);
+  margin-bottom: 80px;
+}
+
+/* Article cards */
+.card {
+  min-height: var(--post-height);
+  display: grid;
+  grid-template-columns: 50% 1fr;
+  background: #1a1a1a;
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .45s ease, transform .45s ease;
+}
+
+.card.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* media-left cards align using per-card --media-col */
+.card.media-left {
+  grid-template-columns: var(--media-col, 420px) 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.card.media-left .media {
+  width: var(--media-col, 420px);
+  height: var(--media-col, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Fallback media container */
+.media {
+  position: relative;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-frame {
+  display: grid;
+  place-items: center;
+  width: var(--media-w, var(--media-col, 100%));
+  height: var(--media-h, var(--media-col, auto));
+  max-width: 100%;
+  overflow: hidden;
+  margin: 0;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.media-frame>img,
+.media-frame>video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* For non-media-left cards use contain to avoid cropping */
+.card:not(.media-left) .media-frame>img,
+.card:not(.media-left) .media-frame>video {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Content */
+.badge {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  background: rgba(15, 23, 42, .85);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 999px;
+}
+
+.content {
+  padding: 18px 20px;
+  display: grid;
+  gap: 10px;
+  align-content: center;
+}
+
+.content h3 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.content h3 a,
+.content h3 a:visited {
+  color: #e5e7eb;
+  text-decoration: underline;
+}
+
+.content h3 a:hover {
+  color: var(--hover-green);
+}
+
+.meta {
+  color: #a7b0bd;
+  font-size: 13px;
+}
+
+/* Tag badge inline with meta on cards */
+.meta .tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0b1d14;
+}
+
+.meta .tag.research {
+  background: #20A387E6;
+}
+
+.meta .tag.journal {
+  background: #93c5fd;
+  color: #0b1220;
+}
+
+.excerpt {
+  color: #d1d5db;
+  line-height: 1.5;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  /* Always show the full excerpt text; do not truncate */
+  max-height: none;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* Visual posts */
+.visual-post {
+  height: var(--post-height);
+  background: #1a1a1a;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .45s ease, transform .45s ease;
+  overflow: visible;
+}
+
+.visual-post.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vp-media-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.visual-media {
+  max-width: calc(var(--container-max) * var(--media-scale));
+  max-height: 100%;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.visual-caption {
+  color: #cbd5e1;
+  font-size: 14px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: var(--caption-gap-center);
+  font-weight: 700;
+}
+
+/* CENTER layout */
+.visual-post.center {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 8px 0;
+  /* no horizontal padding so media aligns with post edges */
+}
+
+.visual-post.center .vp-media-wrap {
+  padding: 0;
+  /* remove inner padding to match article post width */
+}
+
+.visual-post.center .visual-caption {
+  padding: 0 12px;
+  /* horizontal padding only; vertical spacing via margin */
+  font-style: italic;
+  margin-top: var(--caption-gap-center);
+  white-space: normal;
+  overflow: visible;
+}
+
+/* SIDE layouts */
+.visual-post.side {
+  display: grid;
+  grid-template-columns: minmax(0, calc(var(--container-max) * var(--media-scale))) 1fr;
+  gap: 16px;
+  padding: 8px 12px;
+  align-items: center;
+}
+
+.visual-post.side .visual-media {
+  max-height: calc(var(--post-height) - 24px);
+}
+
+.visual-post.side .visual-caption {
+  align-self: center;
+  text-align: left;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  margin-top: var(--media-caption-gap);
+}
+
+.visual-post.right {
+  direction: rtl;
+}
+
+.visual-post.right>* {
+  direction: ltr;
+}
+
+/* TWO layout - ensure caption visible */
+.visual-post.two {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 8px 12px;
+  gap: 10px;
+  height: var(--post-height);
+  overflow: visible;
+}
+
+.visual-post.two .two-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  min-height: 0;
+  min-width: 0;
+  height: auto;
+  max-height: calc(var(--post-height) - var(--two-caption-block));
+  overflow: hidden;
+}
+
+.visual-post.two .vp-media-wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.visual-post.two .visual-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.visual-post.two .visual-caption {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  display: block;
+  padding: 0 6px;
+  /* horizontal padding only */
+  font-style: italic;
+  margin-top: var(--caption-gap-two);
+  text-align: center;
+}
+
+/* About */
+.about-mini {
+  border-top: 1px solid #2b2b2b;
+  padding: 28px 0 40px 0;
+  margin-top: 28px;
+}
+
+.about-wrap {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.about-media img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+  background: #222;
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.about-content h2,
+.about-content h3 {
+  margin: 0 0 6px;
+  color: #eaf0f6;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 28px;
+}
+
+.about-content a {
+  color: #d1d5db;
+  font-style: italic;
+  text-decoration: underline;
+}
+
+.about-content a:hover {
+  color: var(--hover-green);
+}
+
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.about-links .btn {
+  border-color: #2b2b2b;
+  font-weight: 800;
+  font-style: italic;
+  font-size: 14px;
+  color: #e5e7eb;
+  background: #151515;
+  transition: background .25s ease, color .25s ease;
+}
+
+/* Use article serif font for About me paragraph text to match article pages */
+.about-content p {
+  font-family: "Merriweather", Georgia, Cambria, "Times New Roman", Times, serif;
+  line-height: 1.5;
+}
+
+/* Embed styles (network graph / maps) */
+.embed-wrap {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.embed-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.embed-controls .btn {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;
+}
+
+/* responsive iframe: adapt to browser size and forward touch to iframe */
+.responsive-iframe,
+#network-iframe {
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  background: #0b0b0b;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  display: block;
+  aspect-ratio: 16/9;
+  height: clamp(40vh, 60vh, 85vh);
+  max-height: 90vh;
+  min-height: 600px;
+  touch-action: none;
+  -ms-touch-action: none;
+}
+
+@supports not (aspect-ratio: 16/9) {
+
+  .responsive-iframe,
+  #network-iframe {
+    height: clamp(320px, 60vh, 900px);
+  }
+}
+
+@media (max-width: 860px) {
+
+  /* Add a bit more breathing room between posts on mobile */
+  .posts {
+    gap: var(--gap);
+  }
+
+  /* Auto-size visual posts to their media on phones (no fixed --post-height). */
+  .visual-post {
+    height: auto !important;
+  }
+
+  .visual-post.center {
+    grid-template-rows: auto auto;
+    padding: 0;
+  }
+
+  .visual-post .vp-media-wrap {
+    height: auto !important;
+    padding: 0 8px;
+  }
+
+  .visual-post.center .visual-caption {
+    margin-top: var(--caption-gap-center);
+    padding: 0 8px;
+  }
+
+  /* When side layout stacks on mobile, ensure same media->caption gap */
+  .visual-post.side .visual-caption {
+    margin-top: var(--media-caption-gap);
+  }
+
+  .responsive-iframe,
+  #network-iframe {
+    height: clamp(36vh, 65vh, 80vh);
+    min-height: 260px;
+  }
+
+  .embed-controls {
+    flex-wrap: wrap;
+  }
+
+  .embed-controls .btn {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  :root {
+    --post-height: 320px;
+    --two-caption-block: 44px;
+  }
+
+  .card {
+    grid-template-columns: 1fr;
+  }
+
+  .visual-post.side {
+    grid-template-columns: 1fr;
+  }
+
+  .about-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .about-media img {
+    height: 200px;
+  }
+}
+
+/* Medium / small widths: avoid cropping */
+@media (max-width: 1100px) {
+  .card {
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .card .media,
+  .card .media-frame,
+  .card .media-frame>img,
+  .card .media-frame>video {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .card .media img,
+  .card .media video {
+    object-fit: contain !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .card .excerpt {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    line-clamp: unset !important;
+    -webkit-box-orient: unset !important;
+    overflow: visible !important;
+    max-height: none !important;
+    white-space: normal !important;
+  }
+
+  .card .content h3 {
+    font-size: clamp(20px, 3.2vw, 28px);
+    line-height: 1.2;
+  }
+
+  .card .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* small screens */
+@media (max-width: 380px) {
+  .card .content h3 {
+    font-size: clamp(18px, 6vw, 26px);
+  }
+
+  .card .actions a.btn {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+}
+
+/* Add vendor-prefixed and standard line-clamp for lint guidance where used */
+.visual-post.side .visual-caption {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ...existing code... */
+
+/* Ensure links in captions and excerpts keep the same text color and are underlined */
+.visual-caption a,
+.visual-caption a:visited,
+.excerpt a,
+.excerpt a:visited {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.visual-caption a:hover,
+.excerpt a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* Markdown content (news, article pages): unify link colors */
+#md-content a,
+#md-content a:visited {
+  color: #d1d5db;
+  /* same as text */
+  text-decoration: underline;
+  font-style: italic;
+}
+
+#md-content a:hover {
+  color: var(--hover-green);
+}
+
+/* Research page filter bar */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 18px 0 10px 0;
+}
+
+.filter-bar .filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  appearance: none;
+  border: 1px solid #2b2b2b;
+  background: #151515;
+  color: #e5e7eb;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  font-style: italic;
+  transition: background .25s ease, color .25s ease, border-color .25s ease;
+}
+
+.filter-bar .filter-btn:hover {
+  background: var(--hover-green);
+  color: #000;
+}
+
+.filter-bar .filter-btn.active {
+  background: var(--hover-green);
+  color: #000;
+  border-color: transparent;
+}

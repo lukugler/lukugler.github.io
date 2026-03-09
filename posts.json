@@ -1,0 +1,152 @@
+[
+  {
+    "title": "Advances in Historical Aerial Image Analysis: Boosting SfM Pipelines with Learned Models",
+    "excerpt": "For 2025s EGU conference we present initial experiments applying learned feature extractors/ matchers (e.g., SuperPoint, ALIKE, SuperGlue, LoFTR) to strengthen SfM on scanned historical aerial photos. Images are recorded in 1980 during the Chile-60 flights over the Grey & Dickson glacier and Cordon Mariano Moreno (Patagonia, Chile).",
+    "media": "assets/post_4_ani.mp4",
+    "mediaType": "video",
+    "date": "2025-04-28",
+    "href": "articles/EGU25_Grey_Glacier.md",
+    "height": 550,
+    "layout": "media-left",
+    "mediaBoxW": 550,
+    "mediaBoxH": 550,
+    "mobileMaxVH": 50,
+    "presentation": "assets/posters/EGU_25_presentation.pdf",
+    "conferenceAbstract": "https://meetingorganizer.copernicus.org/EGU25/EGU25-17688.html",
+    "tag": "research"
+  },
+  {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/grey_glacier_1980.jpeg",
+    "media2": "assets/grey_glacier_google.jpeg",
+    "mediaType": "image",
+    "media2Type": "image",
+    "caption": "Grey Glacier (Patagonia) comparison: 1980 vs 2022. The glacier tongue showed a shrinkage of >1km in 2022. The 1980 orthoimage is processed from Chile60 aerial images.",
+    "captionLinks": [
+      {
+        "text": "Grey Glacier",
+        "href": "https://de.wikipedia.org/wiki/Grey-Gletscher"
+      }
+    ],
+    "height": 700,
+    "mediaScale": 1.0,
+    "mediaBoxW": 700,
+    "mediaBoxH": 700,
+    "subtype": "compare"
+  },
+  {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/model.glb",
+    "mediaType": "model",
+    "caption": "Interactive terrain model of Grey & Dickson glacier (Patagonia, Chile) processed from Chile-60 data recorded in 1980. Use mouse/touch (carefully) to rotate and pinch to zoom.",
+    "captionLinks": [
+      {
+        "text": "Grey",
+        "href": "https://de.wikipedia.org/wiki/Grey-Gletscher"
+      },
+      {
+        "text": "Dickson",
+        "href": "https://en.wikipedia.org/wiki/Dickson_Glacier"
+      }
+    ],
+    "height": 700,
+    "mediaScale": 1.0,
+    "mediaBoxW": 1100,
+    "mediaBoxH": 550,
+    "mediaBoxWMobile": 400,
+    "mediaBoxHMobile": 500,
+    "subtype": "model"
+  },
+  {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/reculus_glacier_zoom_in.mp4",
+    "mediaType": "video",
+    "caption": "GEOTEC image of Reclus Glacier (Campo de Hielo Sur, Chile) in 1979. GEOTEC was an state-wide aerial imaging campaign for geological and environmental mapping in Chile.",
+    "captionLinks": [
+      {
+        "text": "Reclus Glacier",
+        "href": "https://de.wikipedia.org/wiki/Reclus_(Chile)"
+      }
+    ],
+    "height": 700,
+    "mediaScale": 1.0,
+    "mediaBoxW": 700,
+    "mediaBoxH": 700
+  },
+  {
+    "title": "Insights into Forest Canopy Height Using Evidential Deep Learning",
+    "excerpt": "The study applies Evidential Deep Learning (EDL) to estimate forest canopy height using Sentinel-1/2 imagery as predictors with GEDI LiDAR as reference, modeling both aleatoric and epistemic uncertainties via evidential priors and testing different U-shapred regressors. It examines how distribution shifts affect predictions. During experimentation we noticed underlaying issues with EDL - which are now explained in Jürgens et. al. (2024).",
+    "media": "assets/post_EGU24.jpeg",
+    "mediaType": "image",
+    "date": "2024-05-01",
+    "href": "articles/EGU24_EDL.md",
+    "height": 550,
+    "layout": "media-left",
+    "mediaBoxW": 550,
+    "mediaBoxH": 550,
+    "mobileMaxVH": 50,
+    "conferenceAbstract": "https://meetingorganizer.copernicus.org/EGU24/EGU24-15542.html",
+    "presentation": "assets/posters/EGU_24_EDL.pdf",
+    "tag": "research"
+  },
+  {
+    "title": "Harvesting historical spy imagery by evaluating deep learning models for land cover mapping in Saxony",
+    "excerpt": "Processing land cover maps from CORONA spy imagery. The work was part of my Master’s thesis project and the following LfULG project on historical land cover change in Saxony between 1960 and 1990. The work was presented at the 2023s EGU conference. For data access check the viewer and for more processing details check the project report.",
+    "media": "assets/post_1_header_corona.jpg",
+    "mediaType": "image",
+    "date": "2023-04-28",
+    "href": "articles/harvesting-corona.md",
+    "height": 550,
+    "layout": "media-left",
+    "mediaBoxW": 550,
+    "mediaBoxH": 550,
+    "mobileMaxVH": 50,
+    "viewer": "https://geoviewer.sachsen.de/mapviewer/resources/apps/hilubi/index.html?lang=en",
+    "projectReport": "https://publikationen.sachsen.de/bdb/artikel/42436",
+    "conferenceAbstract": "https://meetingorganizer.copernicus.org/EGU23/EGU23-5487.html",
+    "poster": "assets/posters/EGU_23_corona.pdf",
+    "tag": "research"
+  },
+  {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/post_3_sn_1965.jpeg",
+    "media2": "assets/post_3_sn_1975.jpeg",
+    "mediaType": "image",
+    "media2Type": "image",
+    "caption": "CORONA imagery showing Leisnig (Saxony, Germany) 1965 & 1975.",
+    "height": 700,
+    "mediaScale": 1.0,
+    "mediaBoxW": 700,
+    "mediaBoxH": 700,
+    "subtype": "compare"
+  },
+  {
+    "type": "visual",
+    "layout": "center",
+    "media": "assets/post_3_dd_1975.png",
+    "mediaType": "image",
+    "caption": "CORONA imagery showing Dresden (Saxony, Germany) in 1975.",
+    "height": 380,
+    "mediaScale": 1,
+    "mediaBoxW": 1100,
+    "mediaBoxH": 380
+  },
+  {
+    "title": "Mapping the Telegram Ecosystem Around “Freie Sachsen”",
+    "excerpt": "We map Telegram channels circulating around Freie Sachsen on Telegram using snowball sampling of forwarding relations. Modeling forwards as directed, weighted ties shows Freie Sachsen as a brokered hub. They are widely reused, selectively curating, and bridging adjacent communities. Data and code for this study are available on request.",
+    "media": "assets/post_2_header_tele.jpeg",
+    "mediaType": "image",
+    "date": "2023-11-01",
+    "href": "articles/network_anlysis.md",
+    "height": 600,
+    "layout": "media-left",
+    "mediaBoxW": 1100,
+    "mediaBoxH": 600,
+    "mobileMaxVH": 50,
+    "tag": "journal"
+  }
+]

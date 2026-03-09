@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <title>lukugler</title>
+  <meta name="description" content="Personal research blog">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <!-- model-viewer (modern + legacy) for robust 3D/AR across browsers -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@^3.5/dist/model-viewer.min.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@google/model-viewer@^3.5/dist/model-viewer-legacy.js"></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="hero">
+      <!-- Top-right _about me button (scrolls to #about) -->
+      <div style="position:absolute; top:14px; right:16px; z-index:5; display:flex; gap:8px;">
+        <a class="btn about-btn" href="research.html" title="Research">Research</a>
+        <a class="btn about-btn" href="news.html" title="News">News</a>
+        <a class="btn about-btn" href="#about" title="About me">About Me</a>
+      </div>
+
+      <!-- Header video -->
+      <video class="hero-video" src="assets/header3_web_fullres.mp4" autoplay muted loop playsinline
+        poster="assets/header-poster.jpg" aria-label="Header video"></video>
+
+      <!-- Empty overlay kept for future effects (safe to remove) -->
+      <div class="hero-overlay"></div>
+    </div>
+  </header>
+
+  <main id="content">
+    <section class="posts" id="posts" aria-label="Blog posts">
+      <!-- Cards are injected by script.js from posts.json -->
+      <noscript>Please enable JavaScript to load posts.</noscript>
+    </section>
+
+    <!-- ===== About Me ===== -->
+    <section id="about" class="about-mini" aria-label="About me">
+      <div class="about-wrap">
+        <div class="about-media">
+          <!--My image-->
+          <img src="assets/me.jpeg" alt="Portrait of me">
+        </div>
+        <div class="about-content">
+          <h3>About me</h3>
+          <p>
+            I’m <strong>Lucas Kugler</strong>. Currently PhD student at
+            <a href="https://www.geo.uzh.ch/en/units/rss.html" target="_blank" rel="noopener">Remote Sensing Labs</a>
+            (University of Zurich), working on 3D reconstructions from historical imagery with <a
+              href="https://www.geo.uzh.ch/en/department/Staff/piermatteilivia.html" target="_blank"
+              rel="noopener">Livia Piermattei</a>
+            and
+            <a href="https://dm3l.uzh.ch/wegner/group-leader" target="_blank" rel="noopener">Jan Dirk Wegner</a>.
+          </p>
+          <div class="about-links">
+            <!--Buttons for links-->
+            <a class="btn" href="mailto:lucas.kugler@geo.uzh.ch">Email (UZH)</a>
+            <a class="btn" href="mailto:lucas.kugler26@googlemail.com">Email</a>
+            <a class="btn" href="https://github.com/lukugler" target="_blank" rel="noopener">GitHub</a>
+            <a class="btn" href="https://www.geo.uzh.ch/en/units/rse.html" target="_blank" rel="noopener">Group</a>
+            <a href="assets/CV.pdf" class="btn" target="_blank" rel="noopener">CV</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; <span id="year"></span> Lucas Kugler.</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    // Update footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>

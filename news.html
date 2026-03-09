@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <title>News</title>
+    <meta name="description" content="News">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="hero" style="height: 180px; background:#0f0f0f;">
+            <div style="position:absolute; top:14px; left:16px; z-index:5; display:flex; gap:8px;">
+                <a class="btn about-btn" href="index.html" title="Home">home</a>
+            </div>
+            <div class="hero-overlay" style="background: linear-gradient(to bottom, rgba(0,0,0,.15), rgba(0,0,0,.10));">
+                <h1 style="margin:0; font-style: italic; font-weight: 800;">News</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="md-container" style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
+        <article id="md-content" aria-label="News body">
+            <noscript>Please enable JavaScript to render Markdown.</noscript>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; <span id="year"></span> Lucas Kugler. Built on GitHub Pages.</p>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+        // Load news markdown (moved out of /articles)
+        fetch('news.md')
+            .then(r => {
+                if (!r.ok) throw new Error('Could not load news.md');
+                return r.text();
+            })
+            .then(md => {
+                document.getElementById('md-content').innerHTML = marked.parse(md);
+            })
+            .catch(err => {
+                document.getElementById('md-content').innerHTML = '<p style="color:#fca5a5;">' + err.message + '</p>';
+            });
+    </script>
+</body>
+
+</html>

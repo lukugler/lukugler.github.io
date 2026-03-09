@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="../assets/favicon.png">
+  <title>Article</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ---------- Markdown page layout + type (Light theme for articles) ---------- */
+    body {
+      background: #ffffff;
+      color: #111111;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
+    }
+
+    main.md-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    header.md-header {
+      margin-bottom: 14px;
+    }
+
+    header.md-header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      font-style: italic;
+      margin: 0 0 6px;
+      color: #111111;
+    }
+
+    header.md-header .meta {
+      color: #6b7280;
+      /* slate-500 */
+      font-size: 14px;
+    }
+
+    .md-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Light buttons for article pages only */
+    a.btn {
+      text-decoration: none;
+      background: #e5e7eb;
+      /* light gray */
+      color: #111111;
+      border: 1px solid #d1d5db;
+    }
+
+    a.btn:hover {
+      background: #d1d5db;
+      color: #111111;
+    }
+
+    /* ---------- Rendered markdown ---------- */
+
+    #md-content {
+      color: #111111;
+      line-height: 1.6;
+      font-size: 14px;
+      font-family: "Merriweather", Georgia, Cambria, "Times New Roman", Times, serif;
+      text-align: justify;
+      text-justify: inter-word;
+      /* cleaner justified text */
+      hyphens: auto;
+      -webkit-hyphens: auto;
+      -ms-hyphens: auto;
+    }
+
+    #md-content p {
+      margin: 0 0 1.2em;
+    }
+
+    #md-content h1,
+    #md-content h2,
+    #md-content h3,
+    #md-content h4 {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
+      font-style: italic;
+      font-weight: 800;
+      color: #111111;
+      text-align: left;
+      margin-top: 1.2em;
+    }
+
+    #md-content a {
+      color: #111111;
+      text-decoration: underline;
+      font-style: italic;
+    }
+
+    #md-content a:hover {
+      color: #0f766e;
+      /* teal-700 */
+    }
+
+    #md-content hr {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 28px 0;
+    }
+
+    #md-content code {
+      background: #ffffff;
+      /* pure white */
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #111111;
+      border: 1px solid #e5e7eb;
+      /* subtle separation without tint */
+    }
+
+    #md-content pre {
+      background: #ffffff;
+      /* pure white */
+      padding: 12px;
+      border-radius: 6px;
+      overflow: auto;
+      color: #111111;
+      border: 1px solid #e5e7eb;
+      /* subtle separation without tint */
+    }
+
+    #md-content img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 12px auto;
+    }
+
+    /* Responsive per-article image width controls via CSS variables */
+    #md-content img.resp-img {
+      width: var(--w-desktop, 100%);
+    }
+
+    @media (max-width: 900px) {
+      #md-content img.resp-img {
+        width: var(--w-mobile, 100%);
+      }
+    }
+
+    #md-content blockquote {
+      border-left: 3px solid #e5e7eb;
+      padding-left: 12px;
+      color: #374151;
+      /* gray-700 */
+    }
+
+    /* Figure + caption styling inside markdown */
+    #md-content figure {
+      margin: 16px auto;
+      text-align: center;
+    }
+
+    #md-content figure img {
+      margin: 0 auto 8px;
+    }
+
+    #md-content figcaption {
+      color: #6b7280;
+      font-size: 14px;
+      font-style: italic;
+      font-weight: 800;
+    }
+
+    /* Prevent mobile page zoom when interacting with network graph iframe */
+    .embed-wrap {
+      touch-action: manipulation;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .network-iframe-mobile {
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    @media (max-width: 900px) {
+      .embed-wrap {
+        /* Prevent accidental page zoom on mobile when touching iframe area */
+        touch-action: pan-x pan-y;
+        overflow: hidden;
+        border-radius: 8px;
+      }
+
+      .network-iframe-mobile {
+        /* Allow only pan gestures, block pinch-zoom that affects page */
+        touch-action: pan-x pan-y;
+        pointer-events: auto;
+      }
+    }
+  </style>
+  <!-- Marked (CDN) renders Markdown to HTML on the client -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+  <main class="md-container">
+    <header class="md-header">
+      <h1 id="page-title">Article</h1>
+      <p class="meta" id="page-date"></p>
+      <div class="md-actions">
+        <a class="btn" href="../index.html">Back to Home</a>
+      </div>
+    </header>
+
+    <article id="md-content" aria-label="Article body">
+      <noscript>Please enable JavaScript to render Markdown.</noscript>
+    </article>
+  </main>
+
+  <script>
+    // Grab ?src=articles/your-file.md&title=...&date=yyyy-mm-dd from the URL
+    const params = new URLSearchParams(location.search);
+    const src = params.get('src');
+    const title = params.get('title');
+    const date = params.get('date');
+
+    if (title) document.getElementById('page-title').textContent = title;
+    if (date) {
+      // Render as a friendly date if possible
+      try {
+        const d = new Date(date);
+        const fmt = d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('page-date').textContent = 'Posted on ' + fmt;
+      } catch (e) { }
+    }
+
+    if (!src) {
+      document.getElementById('md-content').innerHTML = '<p>Missing article source (src)</p>';
+    } else {
+      fetch('../' + src)
+        .then(r => {
+          if (!r.ok) throw new Error('Could not load ' + src);
+          return r.text();
+        })
+        .then(md => {
+          // If no explicit title was passed, try to derive from first H1 in MD
+          if (!title) {
+            const h1 = md.match(/^#\s+(.+)$/m);
+            if (h1 && h1[1]) document.getElementById('page-title').textContent = h1[1].trim();
+          }
+          document.getElementById('md-content').innerHTML = marked.parse(md);
+        })
+        .catch(err => {
+          document.getElementById('md-content').innerHTML = '<p style="color:#fca5a5;">' + err.message + '</p>';
+        });
+    }
+  </script>
+</body>
+
+</html>
