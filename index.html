@@ -10,9 +10,13 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
 
-  <!-- model-viewer (modern + legacy) for robust 3D/AR across browsers -->
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@^3.5/dist/model-viewer.min.js"></script>
-  <script nomodule src="https://cdn.jsdelivr.net/npm/@google/model-viewer@^3.5/dist/model-viewer-legacy.js"></script>
+  <link rel="preload" as="video" href="assets/header3_web_fullres.mp4">
+
+  <!-- model-viewer (modern + legacy) – deferred so header video loads first -->
+  <script defer type="module"
+    src="https://cdn.jsdelivr.net/npm/@google/model-viewer@^3.5/dist/model-viewer.min.js"></script>
+  <script defer nomodule
+    src="https://cdn.jsdelivr.net/npm/@google/model-viewer@^3.5/dist/model-viewer-legacy.js"></script>
 </head>
 
 <body>
