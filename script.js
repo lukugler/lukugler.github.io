@@ -2,6 +2,20 @@
 // Loads posts from posts.json and renders either article cards or visual blocks.
 // Mobile behavior: text-first, media scales down without cropping, no fixed vh cap, description never truncated.
 (function () {
+  // --- Header video: start at 10s on every page load; after first loop, restart from 0s ---
+  (function headerVideoStart() {
+    const video = document.querySelector('.hero-video');
+    if (!video) return;
+    video.loop = false;
+    video.currentTime = 15;
+    video.addEventListener('ended', function onFirstEnd() {
+      video.removeEventListener('ended', onFirstEnd);
+      video.loop = true;
+      video.currentTime = 0;
+      video.play();
+    });
+  })();
+
   const postsEl = document.querySelector('.posts');
 
   // --- Reload watchdog (diagnostic) -------------------------------------------------
