@@ -12,7 +12,7 @@
       : 'assets/header3_web_fullres_16_9.mp4';
     video.src = src;
     video.loop = false;
-    video.currentTime = 15;
+    video.currentTime = 12;
     video.addEventListener('ended', function onFirstEnd() {
       video.removeEventListener('ended', onFirstEnd);
       video.loop = true;
