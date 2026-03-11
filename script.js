@@ -2,10 +2,15 @@
 // Loads posts from posts.json and renders either article cards or visual blocks.
 // Mobile behavior: text-first, media scales down without cropping, no fixed vh cap, description never truncated.
 (function () {
-  // --- Header video: start at 10s on every page load; after first loop, restart from 0s ---
+  // --- Header video: pick mobile/desktop source, start at 15s, then loop from 0s ---
   (function headerVideoStart() {
     const video = document.querySelector('.hero-video');
     if (!video) return;
+    var isMobile = window.innerWidth <= 768;
+    var src = isMobile
+      ? 'assets/header3_web_fullres_mob.mp4'
+      : 'assets/header3_web_fullres_16_9.mp4';
+    video.src = src;
     video.loop = false;
     video.currentTime = 15;
     video.addEventListener('ended', function onFirstEnd() {
